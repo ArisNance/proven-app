@@ -1,0 +1,39 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Admin", path: admin_root_path },
+  { label: "Shops" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Admin Shops",
+  title: "Manage Shops",
+  description: "View all shops, approval states, and owner accounts.",
+  actions: [{ label: "Admin home", path: admin_root_path, style: :secondary }] %>
+
+<section class="surface-panel p-5">
+  <div class="overflow-x-auto">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Maker</th>
+          <th>State</th>
+          <th>Approval</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @shops.each do |shop| %>
+          <tr>
+            <td><%= shop.id %></td>
+            <td><%= shop.name %></td>
+            <td><%= shop.maker&.email %></td>
+            <td><span class="<%= status_pill_class(shop.state) %>"><%= shop.state %></span></td>
+            <td><span class="<%= status_pill_class(shop.shop_approval&.state || "pending") %>"><%= shop.shop_approval&.state || "pending" %></span></td>
+            <td><%= link_to "Open", admin_shop_path(shop), class: quick_action_classes(:secondary) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

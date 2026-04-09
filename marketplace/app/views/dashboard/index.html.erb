@@ -1,0 +1,81 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Dashboard" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Role Workspace",
+  title: "Dashboard",
+  description: "Track the most important Buyer, Maker, and Admin signals in one place.",
+  actions: role_quick_actions %>
+
+<% if @first_time_user %>
+  <section class="surface-panel mb-4 border-l-4 border-l-accent p-5" aria-live="polite">
+    <h2 class="text-lg font-bold">Welcome to your first dashboard visit</h2>
+    <p class="mt-2 text-sm text-slate-600">
+      <% if current_user.maker? %>
+        Start by completing onboarding and creating your first shop to unlock approvals and billing setup.
+      <% elsif current_user.buyer? %>
+        Start a conversation with a maker to begin your first purchase flow.
+      <% else %>
+        Your approval queues are clear. Monitor this page for new submissions and moderation flags.
+      <% end %>
+    </p>
+  </section>
+<% end %>
+
+<section class="info-grid">
+  <article class="metric-tile">
+    <p class="metric-label">Open chats</p>
+    <p class="metric-value"><%= @conversations.count %></p>
+  </article>
+  <article class="metric-tile">
+    <p class="metric-label">Shop approvals</p>
+    <p class="metric-value"><%= @pending_shop_approvals %></p>
+  </article>
+  <article class="metric-tile">
+    <p class="metric-label">Product approvals</p>
+    <p class="metric-value"><%= @pending_product_approvals %></p>
+  </article>
+  <article class="metric-tile">
+    <p class="metric-label">Open flags</p>
+    <p class="metric-value"><%= @open_flags %></p>
+  </article>
+</section>
+
+<section class="mt-4 grid gap-4 lg:grid-cols-2">
+  <article class="surface-panel p-5">
+    <h2 class="text-xl font-bold">Priority Actions</h2>
+    <ul class="mt-3 space-y-2 text-sm text-slate-600">
+      <% if current_user.maker? %>
+        <li>Complete payout onboarding through Stripe Connect.</li>
+        <li>Submit your shop for review and verify listing fee sync.</li>
+        <li>Respond to buyer questions within 24 hours.</li>
+      <% elsif current_user.admin? %>
+        <li>Triage pending shop approvals with policy consistency.</li>
+        <li>Review flagged products for abuse or duplication.</li>
+        <li>Audit payout and webhook health before close of day.</li>
+      <% else %>
+        <li>Use conversations to ask makers about materials and shipping.</li>
+        <li>Track message updates and response times.</li>
+        <li>Review verified maker badges before checkout.</li>
+      <% end %>
+    </ul>
+  </article>
+
+  <article class="surface-panel p-5">
+    <h2 class="text-xl font-bold">Recent Activity</h2>
+    <% if @recent_messages.any? %>
+      <ul class="mt-3 space-y-3">
+        <% @recent_messages.each do |message| %>
+          <li class="rounded-2xl border border-slate-200 p-3">
+            <p class="text-sm text-slate-800"><%= truncate(message.body, length: 120) %></p>
+            <p class="mt-1 text-xs text-slate-500"><%= time_ago_in_words(message.created_at) %> ago</p>
+          </li>
+        <% end %>
+      </ul>
+    <% else %>
+      <%= render "shared/empty_state", title: "No activity yet", description: "Your latest updates will appear here once messages and approvals start flowing." %>
+    <% end %>
+  </article>
+</section>

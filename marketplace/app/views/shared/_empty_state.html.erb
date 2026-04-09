@@ -1,0 +1,9 @@
+<section class="empty-state" role="status" aria-live="polite" data-reveal data-reveal-delay="80">
+  <h2 class="text-xl font-header font-bold text-slate-900"><%= title %></h2>
+  <p class="mt-2 text-sm text-slate-600"><%= description %></p>
+  <% if local_assigns[:action].present? %>
+    <div class="mt-4">
+      <%= link_to action[:label], action[:path], class: quick_action_classes(action[:style] || :primary) %>
+    </div>
+  <% end %>
+</section>

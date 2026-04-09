@@ -1,0 +1,11 @@
+<% if notice.present? %>
+  <div class="flash-banner flash-success" role="status" aria-live="polite" data-controller="flash" data-flash-timeout-value="3000">
+    <p><%= notice %></p>
+  </div>
+<% end %>
+
+<% if alert.present? %>
+  <div class="flash-banner flash-warning" role="alert" aria-live="assertive" data-controller="flash" data-flash-timeout-value="3000">
+    <p><%= alert %></p>
+  </div>
+<% end %>

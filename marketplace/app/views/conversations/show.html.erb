@@ -1,0 +1,45 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Messages", path: conversations_path },
+  { label: @counterpart&.email || "Conversation ##{@conversation.id}" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Messaging",
+  title: @counterpart&.email || "Conversation ##{@conversation.id}",
+  description: "Keep responses clear and timely to build trust.",
+  actions: [{ label: "All conversations", path: conversations_path, style: :secondary }] %>
+
+<section class="surface-panel p-5">
+  <% if @messages.any? %>
+    <div class="max-h-[28rem] space-y-3 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50 p-4" aria-live="polite">
+      <% @messages.each do |message| %>
+        <article class="flex <%= message.sender_id == current_user.id ? 'justify-end' : 'justify-start' %>">
+          <div class="max-w-[80%] rounded-2xl px-4 py-3 text-sm <%= message.sender_id == current_user.id ? 'bg-primary text-white' : 'border border-slate-200 bg-white text-slate-800' %>">
+            <p><%= message.body %></p>
+            <p class="mt-1 text-[11px] <%= message.sender_id == current_user.id ? 'text-slate-200' : 'text-slate-500' %>">
+              <%= l(message.created_at, format: :short) %>
+            </p>
+          </div>
+        </article>
+      <% end %>
+    </div>
+  <% else %>
+    <%= render "shared/empty_state", title: "Start the conversation", description: "Send a first message to begin this thread." %>
+  <% end %>
+
+  <%= form_with url: conversation_messages_path(@conversation), method: :post, class: "mt-4 grid gap-2", data: { controller: "conversation form-state" } do |f| %>
+    <label class="field-label" for="message_body">Message <span class="field-meta">Required</span></label>
+    <textarea
+      id="message_body"
+      name="body"
+      required
+      class="textarea textarea-bordered h-24 w-full"
+      placeholder="Type your message. Press Enter to send, Shift+Enter for a new line."
+      data-conversation-target="input"
+      data-action="keydown->conversation#submitOnEnter"></textarea>
+    <div class="flex justify-end">
+      <button class="<%= quick_action_classes(:primary) %>" type="submit" data-form-state-target="submit">Send message</button>
+    </div>
+  <% end %>
+</section>

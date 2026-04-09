@@ -1,0 +1,76 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Admin" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Admin Panel",
+  title: "Operations Snapshot",
+  description: "Monitor platform health and manage every core object from one place.",
+  actions: [
+    { label: "Approvals", path: admin_approvals_path, style: :secondary },
+    { label: "Sign out", path: admin_logout_path, style: :secondary }
+  ] %>
+
+<section class="info-grid">
+  <article class="metric-tile">
+    <p class="metric-label">Users</p>
+    <p class="metric-value"><%= @users_count %></p>
+  </article>
+  <article class="metric-tile">
+    <p class="metric-label">Shops</p>
+    <p class="metric-value"><%= @shops_count %></p>
+  </article>
+  <article class="metric-tile">
+    <p class="metric-label">Products</p>
+    <p class="metric-value"><%= @products_count %></p>
+  </article>
+  <article class="metric-tile">
+    <p class="metric-label">Catalog value</p>
+    <p class="metric-value"><%= number_to_currency(@catalog_value_cents.to_f / 100) %></p>
+  </article>
+  <article class="metric-tile">
+    <p class="metric-label">Applicants need review</p>
+    <p class="metric-value"><%= @applicants_need_review %></p>
+  </article>
+  <article class="metric-tile">
+    <p class="metric-label">Messages</p>
+    <p class="metric-value"><%= @messages_count %></p>
+  </article>
+</section>
+
+<section class="mt-4 grid gap-4 lg:grid-cols-3">
+  <article class="surface-panel p-5">
+    <h2 class="text-lg font-bold">Manage Objects</h2>
+    <ul class="mt-3 space-y-2 text-sm text-slate-700">
+      <li><%= link_to "Users", admin_users_path, class: "underline" %></li>
+      <li><%= link_to "Shops", admin_shops_path, class: "underline" %></li>
+      <li><%= link_to "Products", admin_products_path, class: "underline" %></li>
+      <li><%= link_to "Messages", admin_messages_path, class: "underline" %></li>
+      <li><%= link_to "Approvals", admin_approvals_path, class: "underline" %></li>
+    </ul>
+  </article>
+
+  <article class="surface-panel p-5 lg:col-span-2">
+    <h2 class="text-lg font-bold">Recent Users</h2>
+    <ul class="mt-3 space-y-2 text-sm text-slate-700">
+      <% @recent_users.each do |user| %>
+        <li class="flex items-center justify-between rounded-xl border border-slate-200 p-3">
+          <span><%= user.email %> (<%= user.role %>)</span>
+          <%= link_to "Open", admin_user_path(user), class: quick_action_classes(:secondary) %>
+        </li>
+      <% end %>
+    </ul>
+
+    <h2 class="mt-5 text-lg font-bold">Recent Messages</h2>
+    <ul class="mt-3 space-y-2 text-sm text-slate-700">
+      <% @recent_messages.each do |message| %>
+        <li class="rounded-xl border border-slate-200 p-3">
+          <p class="font-semibold"><%= message.sender&.email || "Unknown sender" %></p>
+          <p class="text-slate-600"><%= truncate(message.body, length: 120) %></p>
+          <%= link_to "Open", admin_message_path(message), class: "mt-2 inline-block underline" %>
+        </li>
+      <% end %>
+    </ul>
+  </article>
+</section>

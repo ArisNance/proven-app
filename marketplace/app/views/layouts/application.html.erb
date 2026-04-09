@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="proven">
+  <head>
+    <title>Proven Marketplace</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="Proven helps buyers discover verified makers and helps makers launch trusted shops.">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", defer: true %>
+  </head>
+
+  <body data-controller="micro-motion">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-white focus:px-3 focus:py-2">Skip to content</a>
+
+    <header class="top-nav">
+      <div class="app-shell flex items-center justify-between gap-4 py-4">
+        <div class="flex items-center gap-3">
+          <%= link_to root_path, class: "brand-mark" do %>
+            Proven
+          <% end %>
+        </div>
+
+        <nav aria-label="Primary" class="hidden md:block">
+          <ul class="flex flex-wrap items-center gap-1">
+            <% primary_navigation_items.each do |item| %>
+              <li>
+                <%= link_to item[:label], item[:path], class: nav_link_classes(current_page?(item[:path])) %>
+              </li>
+            <% end %>
+          </ul>
+        </nav>
+
+        <div class="flex items-center gap-2">
+          <%= link_to "Shop", products_path, class: "inline-flex items-center rounded-full border border-[#CCCCC4] px-3 py-2 text-sm font-medium text-[#4A4A42] hover:border-[#0D0D0D] md:hidden" %>
+          <% if user_signed_in? %>
+            <%= link_to "Account", dashboard_index_path, class: "inline-flex items-center rounded-full border border-[#CCCCC4] px-3 py-2 text-sm font-medium text-[#4A4A42] hover:border-[#0D0D0D]" %>
+            <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "inline-flex items-center rounded-full border border-[#CCCCC4] px-3 py-2 text-sm font-medium text-[#4A4A42] hover:border-[#0D0D0D]" %>
+          <% else %>
+            <%= link_to "Sign in", new_user_session_path, class: "inline-flex items-center rounded-full border border-[#CCCCC4] px-3 py-2 text-sm font-medium text-[#4A4A42] hover:border-[#0D0D0D]" %>
+            <%= link_to "Join", new_user_registration_path, class: "inline-flex items-center rounded-full bg-[#D4F93D] px-3 py-2 text-sm font-semibold text-black hover:bg-[#B8DC28]" %>
+          <% end %>
+        </div>
+      </div>
+    </header>
+
+    <main id="main-content" class="app-shell page-main">
+      <%= render "shared/flash" %>
+      <div class="mt-4">
+        <%= yield %>
+      </div>
+    </main>
+
+    <footer class="border-t border-[#E8E8E2] bg-[#FAFAF8] py-6">
+      <div class="app-shell flex flex-col gap-2 text-sm text-[#8A8A80] md:flex-row md:items-center md:justify-between">
+        <p>Proven Marketplace. Every item. Every maker. Verified.</p>
+        <p>Built for trusted maker commerce.</p>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,304 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Shop", path: products_path },
+  { label: @product.category, path: products_path(category: @product.category) },
+  { label: @product.name }
+] %>
+
+<% rating = 4.9 %>
+<% review_count = 238 %>
+<% favorite_count = 612 %>
+<% verified_on = "March 1, 2026" %>
+<% delivery_start = (Date.current + 5.days).strftime("%b %-d") %>
+<% delivery_end = (Date.current + 10.days).strftime("%b %-d") %>
+<% size_options = Array(@product.variation_values&.dig("size", :values)).first(4) %>
+<% color_options = Array(@product.variation_values&.dig("color", :values)).first(5) %>
+<% maker_name = @maker_profile&.display_name.presence || @product.maker_name %>
+<% maker_country = @maker_profile&.country.presence || "United States" %>
+<% maker_shop_name = @maker_shop&.name.presence || "#{maker_name} Studio" %>
+<% maker_bio = @maker_profile&.bio.to_s.strip.presence || "Independent maker crafting small-batch goods with careful finishing and production consistency." %>
+
+<div data-controller="verification-modal">
+  <section class="product-detail-grid mb-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+    <div>
+      <div class="detail-gallery-main aspect-[4/5] bg-white">
+        <% if @product.image_url.present? %>
+          <img src="<%= @product.image_url %>" alt="<%= @product.name %>" class="h-full w-full object-cover">
+        <% else %>
+          <div class="grid h-full place-items-center text-sm text-[#8A8A80]">Image coming soon</div>
+        <% end %>
+      </div>
+
+      <div class="mt-4 flex gap-3">
+        <% 4.times do |index| %>
+          <button type="button" class="detail-thumb <%= index.zero? ? 'is-active' : '' %>">
+            <% if @product.image_url.present? %>
+              <img src="<%= @product.image_url %>" alt="<%= @product.name %> thumbnail <%= index + 1 %>" class="h-full w-full object-cover">
+            <% else %>
+              <span class="grid h-full place-items-center text-xs text-[#8A8A80]">No image</span>
+            <% end %>
+          </button>
+        <% end %>
+      </div>
+
+      <div class="surface-panel mt-5 p-5">
+        <h2 class="text-lg font-bold text-[#0D0D0D]">Item Highlights</h2>
+        <ul class="mt-3 space-y-2 text-sm text-[#4A4A42]">
+          <li class="flex items-start gap-2"><span class="mt-1 inline-block h-2 w-2 rounded-full bg-[#D4F93D]"></span>Handmade by <strong><%= maker_name %></strong></li>
+          <li class="flex items-start gap-2"><span class="mt-1 inline-block h-2 w-2 rounded-full bg-[#D4F93D]"></span>Materials: <strong><%= @product.material %></strong></li>
+          <li class="flex items-start gap-2"><span class="mt-1 inline-block h-2 w-2 rounded-full bg-[#D4F93D]"></span>Category: <strong><%= @product.category %></strong></li>
+          <li class="flex items-start gap-2"><span class="mt-1 inline-block h-2 w-2 rounded-full bg-[#D4F93D]"></span>Gift-ready packaging available</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="space-y-5">
+      <div class="surface-panel p-6 md:p-7">
+        <div class="mb-3 flex flex-wrap items-center gap-2">
+          <span class="rounded-full bg-[#F4F4F0] px-3 py-1 text-xs font-semibold text-[#4A4A42]"><%= maker_shop_name %></span>
+          <button type="button" class="inline-flex items-center gap-1.5 rounded-full bg-[#E0FBF4] px-3 py-1 text-xs font-semibold text-[#0C6B4A] transition hover:bg-[#d0f5e8]" data-action="click->verification-modal#open">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Proven Verified
+          </button>
+        </div>
+
+        <h1 class="text-3xl font-bold leading-tight text-[#0D0D0D] md:text-4xl"><%= @product.name %></h1>
+        <div class="mt-3 flex flex-wrap items-center gap-3 text-sm text-[#4A4A42]">
+          <p class="inline-flex items-center gap-1"><span class="text-[#0D0D0D]">★★★★★</span> <strong><%= rating %></strong> (<%= review_count %> reviews)</p>
+          <span>•</span>
+          <p><%= favorite_count %> favorites</p>
+        </div>
+
+        <p class="mt-4 font-header text-4xl font-bold text-[#0D0D0D]"><%= number_to_currency(@product.price_cents.to_f / 100) %></p>
+        <p class="mt-1 text-sm text-[#6D6D63]">or 4 interest-free payments of <%= number_to_currency((@product.price_cents.to_f / 100) / 4.0) %></p>
+
+        <% if size_options.any? %>
+          <div class="mt-5">
+            <label class="field-label">Size</label>
+            <div class="mt-2 flex flex-wrap gap-2">
+              <% size_options.each_with_index do |size, index| %>
+                <button type="button" class="rounded-full border px-4 py-1.5 text-sm font-semibold transition <%= index.zero? ? 'border-[#0D0D0D] bg-[#0D0D0D] text-white' : 'border-[#CCCCC4] text-[#4A4A42] hover:border-[#0D0D0D]' %>"><%= size %></button>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <% if color_options.any? %>
+          <div class="mt-5">
+            <label class="field-label">Color</label>
+            <div class="mt-2 flex flex-wrap gap-2">
+              <% color_options.each_with_index do |color, index| %>
+                <button type="button" class="rounded-full border px-4 py-1.5 text-sm font-semibold transition <%= index.zero? ? 'border-[#0D0D0D] bg-[#F4F4F0] text-[#0D0D0D]' : 'border-[#CCCCC4] text-[#4A4A42] hover:border-[#0D0D0D]' %>"><%= color %></button>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="mt-5">
+          <label class="field-label" for="listing_quantity">Quantity</label>
+          <select id="listing_quantity" class="select select-bordered mt-2 w-full rounded-2xl border-[#CCCCC4] bg-white">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+          </select>
+        </div>
+
+        <div class="mt-6 grid gap-3 sm:grid-cols-2">
+          <button class="inline-flex items-center justify-center rounded-full bg-[#D4F93D] px-6 py-3 text-sm font-bold text-black hover:bg-[#B8DC28]" type="button">Add to bag</button>
+          <button class="inline-flex items-center justify-center rounded-full border border-[#0D0D0D] px-6 py-3 text-sm font-semibold text-[#0D0D0D] hover:bg-[#0D0D0D] hover:text-white" type="button">Buy it now</button>
+        </div>
+
+        <div class="mt-5 rounded-2xl bg-[#F8F8F5] p-4">
+          <p class="text-sm font-semibold text-[#0D0D0D]">Arrives <%= delivery_start %> - <%= delivery_end %></p>
+          <p class="mt-1 text-sm text-[#4A4A42]">Free tracked shipping from <strong><%= maker_country %></strong>.</p>
+          <p class="mt-2 text-xs text-[#6D6D63]">Order today to lock estimated delivery and production slot.</p>
+        </div>
+
+        <div class="mt-4 space-y-1.5 text-sm text-[#4A4A42]">
+          <p>• Secure checkout powered by Proven</p>
+          <p>• Returns accepted within 14 days of delivery</p>
+          <p>• Gift notes supported at checkout</p>
+        </div>
+      </div>
+
+      <div class="surface-panel p-6">
+        <h2 class="text-xl font-bold text-[#0D0D0D]">Description</h2>
+        <p class="mt-3 whitespace-pre-line leading-relaxed text-[#4A4A42]"><%= @product.details.presence || @product.description %></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] mb-12">
+    <div class="surface-panel p-6 md:p-8">
+      <div class="flex items-center justify-between gap-4">
+        <h2 class="text-2xl font-bold text-[#0D0D0D]">Reviews</h2>
+        <p class="text-sm text-[#4A4A42]"><strong><%= rating %> / 5</strong> from <%= review_count %> buyers</p>
+      </div>
+
+      <div class="mt-4 space-y-2">
+        <div class="flex items-center gap-3 text-sm"><span class="w-16 text-[#4A4A42]">5 star</span><div class="h-2 flex-1 rounded-full bg-[#ECECE7]"><div class="h-2 w-[86%] rounded-full bg-[#0D0D0D]"></div></div><span class="w-10 text-right text-[#6D6D63]">86%</span></div>
+        <div class="flex items-center gap-3 text-sm"><span class="w-16 text-[#4A4A42]">4 star</span><div class="h-2 flex-1 rounded-full bg-[#ECECE7]"><div class="h-2 w-[10%] rounded-full bg-[#4A4A42]"></div></div><span class="w-10 text-right text-[#6D6D63]">10%</span></div>
+        <div class="flex items-center gap-3 text-sm"><span class="w-16 text-[#4A4A42]">3 star</span><div class="h-2 flex-1 rounded-full bg-[#ECECE7]"><div class="h-2 w-[3%] rounded-full bg-[#8A8A80]"></div></div><span class="w-10 text-right text-[#6D6D63]">3%</span></div>
+      </div>
+
+      <div class="mt-6 space-y-4">
+        <article class="rounded-2xl border border-[#E8E8E2] bg-white p-4">
+          <p class="text-sm font-semibold text-[#0D0D0D]">“Beautiful craftsmanship and arrived early. Exactly as shown.”</p>
+          <p class="mt-1 text-xs text-[#6D6D63]">A verified buyer • 5 stars • Feb 2026</p>
+        </article>
+        <article class="rounded-2xl border border-[#E8E8E2] bg-white p-4">
+          <p class="text-sm font-semibold text-[#0D0D0D]">“Seller was responsive and packaging was perfect for gifting.”</p>
+          <p class="mt-1 text-xs text-[#6D6D63]">A verified buyer • 5 stars • Jan 2026</p>
+        </article>
+      </div>
+    </div>
+
+    <div class="space-y-6">
+      <section class="surface-panel p-6">
+        <h2 class="text-xl font-bold text-[#0D0D0D]">Shipping & Returns</h2>
+        <div class="mt-4 space-y-3 text-sm text-[#4A4A42]">
+          <p><strong>Estimated delivery:</strong> <%= delivery_start %> - <%= delivery_end %></p>
+          <p><strong>Dispatch time:</strong> 1-3 business days</p>
+          <p><strong>Returns:</strong> Accepted within 14 days</p>
+          <p><strong>Cancellations:</strong> Within 12 hours of purchase</p>
+        </div>
+      </section>
+
+      <section class="surface-panel p-6 md:p-7">
+        <div class="grid gap-6 md:grid-cols-[96px_1fr] md:items-center">
+          <div class="relative">
+            <% if @product.image_url.present? %>
+              <img src="<%= @product.image_url %>" alt="<%= maker_name %>" class="h-20 w-20 rounded-full object-cover shadow-soft">
+            <% else %>
+              <img src="https://storage.googleapis.com/ore-web/proven-pulse-symbol.png" alt="Proven verified" class="h-20 w-20 rounded-full bg-white p-2 shadow-soft">
+            <% end %>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold text-[#0D0D0D]">Meet your seller</h2>
+            <p class="mt-1 text-sm text-[#4A4A42]"><strong><%= maker_name %></strong> · <%= maker_shop_name %></p>
+            <p class="mt-2 text-sm text-[#4A4A42]"><%= truncate(maker_bio, length: 170) %></p>
+            <div class="mt-4 flex flex-wrap gap-3">
+              <%= link_to(user_signed_in? ? "Message seller" : "Sign in to message", user_signed_in? ? conversations_path : new_user_session_path, class: quick_action_classes(:secondary)) %>
+              <button type="button" class="inline-flex items-center gap-2 rounded-full border border-[#0C6B4A]/20 bg-[#E0FBF4] px-4 py-2 text-sm font-semibold text-[#0C6B4A] transition hover:bg-[#d0f5e8]" data-action="click->verification-modal#open">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Verified badge
+              </button>
+              <%= link_to "Back to shop", products_path, class: quick_action_classes(:primary) %>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <section>
+    <div class="mb-4 flex items-end justify-between">
+      <h2 class="text-3xl font-bold text-[#0D0D0D]">You May Also Like</h2>
+      <%= link_to "View all", products_path, class: quick_action_classes(:secondary) %>
+    </div>
+
+    <% if @related_products.any? %>
+      <div class="product-grid">
+        <% @related_products.each do |product| %>
+          <%= render "shared/product_card", product: product %>
+        <% end %>
+      </div>
+    <% else %>
+      <%= render "shared/empty_state", title: "No related products", description: "Explore the catalog for more verified maker products.", action: { label: "Browse catalog", path: products_path, style: :primary } %>
+    <% end %>
+  </section>
+
+  <dialog class="proven-verification-modal" data-verification-modal-target="dialog" data-action="click->verification-modal#backdropClose close->verification-modal#showOverview">
+    <div class="proven-verification-panel" data-verification-modal-target="overview">
+      <div class="proven-verification-header">
+        <div class="flex items-center gap-3">
+          <span class="proven-verify-icon-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#F9C94B]" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2l1.8 3.7 4.1.6-3 2.9.7 4.1-3.6-1.9-3.7 1.9.7-4.1-3-2.9 4.1-.6L12 2z"></path>
+              <path d="M19 12l.8 1.8 2 .3-1.4 1.4.3 2-1.7-.9-1.8.9.4-2-1.5-1.4 2.1-.3L19 12z"></path>
+            </svg>
+          </span>
+          <h3 class="text-2xl font-bold text-[#0D0D0D]">Proven Verified</h3>
+        </div>
+        <button type="button" class="proven-verify-close" data-action="click->verification-modal#close" aria-label="Close verification modal">×</button>
+      </div>
+
+      <p class="mt-4 text-sm text-[#4A4A42]">This seller has completed Proven verification checks across identity, workspace, and production quality standards.</p>
+
+      <ul class="mt-5 space-y-3">
+        <li class="proven-verify-check">Identity confirmed</li>
+        <li class="proven-verify-check">Workspace inspected</li>
+        <li class="proven-verify-check">Production quality validated</li>
+      </ul>
+
+      <div class="mt-6 grid gap-3 sm:grid-cols-2">
+        <button type="button" class="inline-flex items-center justify-center rounded-full bg-[#0D0D0D] px-5 py-3 text-sm font-semibold text-white hover:bg-black" data-action="click->verification-modal#showDetails">View Verification</button>
+        <button type="button" class="inline-flex items-center justify-center rounded-full border border-[#CCCCC4] px-5 py-3 text-sm font-semibold text-[#0D0D0D] hover:border-[#0D0D0D]" data-action="click->verification-modal#close">Close</button>
+      </div>
+
+      <p class="mt-4 text-center text-xs text-[#8A8A80]">Verified on <%= verified_on %></p>
+    </div>
+
+    <div class="proven-verification-panel" data-verification-modal-target="details" hidden>
+      <div class="proven-verification-header border-b border-[#E6E6E0] pb-4">
+        <div class="flex items-center gap-3">
+          <span class="proven-verify-icon-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#F9C94B]" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2l1.8 3.7 4.1.6-3 2.9.7 4.1-3.6-1.9-3.7 1.9.7-4.1-3-2.9 4.1-.6L12 2z"></path>
+              <path d="M19 12l.8 1.8 2 .3-1.4 1.4.3 2-1.7-.9-1.8.9.4-2-1.5-1.4 2.1-.3L19 12z"></path>
+            </svg>
+          </span>
+          <h3 class="text-2xl font-bold text-[#0D0D0D]">Proven Verified</h3>
+        </div>
+        <button type="button" class="proven-verify-close" data-action="click->verification-modal#close" aria-label="Close verification modal">×</button>
+      </div>
+
+      <div class="mt-5 flex items-center gap-3">
+        <% if @product.image_url.present? %>
+          <img src="<%= @product.image_url %>" alt="<%= maker_name %>" class="h-14 w-14 rounded-full object-cover">
+        <% else %>
+          <img src="https://storage.googleapis.com/ore-web/proven-pulse-symbol.png" alt="Proven symbol" class="h-14 w-14 rounded-full bg-white p-2">
+        <% end %>
+        <div>
+          <p class="text-2xl font-bold leading-none text-[#0D0D0D]"><%= maker_name %></p>
+          <p class="mt-1 text-sm text-[#6D6D63]"><%= maker_shop_name %> • Seattle, WA</p>
+        </div>
+      </div>
+
+      <div class="mt-5 space-y-4">
+        <article class="proven-verify-card">
+          <div class="flex items-center justify-between gap-2">
+            <p class="proven-verify-card-title">Identity</p>
+            <span class="proven-verify-chip">✓ Verified</span>
+          </div>
+          <p class="proven-verify-copy">Owner identified as <%= maker_name %>. Email verified.</p>
+        </article>
+        <article class="proven-verify-card">
+          <div class="flex items-center justify-between gap-2">
+            <p class="proven-verify-card-title">Workspace</p>
+            <span class="proven-verify-chip">✓ Verified</span>
+          </div>
+          <p class="proven-verify-copy">Studio workspace confirmed in Seattle.</p>
+        </article>
+        <article class="proven-verify-card">
+          <div class="flex items-center justify-between gap-2">
+            <p class="proven-verify-card-title">Production</p>
+            <span class="proven-verify-chip">✓ Verified</span>
+          </div>
+          <p class="proven-verify-copy">Production capabilities confirmed.</p>
+        </article>
+      </div>
+
+      <button type="button" class="mt-7 inline-flex w-full items-center justify-center rounded-full bg-black px-6 py-3 text-base font-semibold text-white hover:bg-[#1a1a1a]" data-action="click->verification-modal#close">Close</button>
+      <p class="mt-4 text-center text-xs leading-relaxed text-[#9A9A90]">Verified on: <%= verified_on %>. Proven verification confirmed the maker's identity, workspace, and production capabilities.</p>
+      <div class="mt-3 text-center">
+        <button type="button" class="text-xs font-semibold uppercase tracking-[0.08em] text-[#4A4A42] underline decoration-[#CCCCC4] underline-offset-4 hover:text-black" data-action="click->verification-modal#showOverview">Back</button>
+      </div>
+    </div>
+  </dialog>
+</div>

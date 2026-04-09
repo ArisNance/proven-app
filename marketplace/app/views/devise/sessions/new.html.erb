@@ -1,0 +1,40 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Sign in" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Account",
+  title: "Sign in to Proven",
+  description: "Access your Buyer, Maker, or Admin workspace." %>
+
+<section class="mx-auto max-w-xl form-card">
+  <%= render "devise/shared/error_messages", resource: resource %>
+
+  <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "grid gap-4", data: { controller: "form-state" } }) do |f| %>
+    <div>
+      <label class="field-label" for="user_email">Email <span class="field-meta">Required</span></label>
+      <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "input input-bordered mt-1 w-full", required: true %>
+    </div>
+
+    <div>
+      <label class="field-label" for="user_password">Password <span class="field-meta">Required</span></label>
+      <%= f.password_field :password, autocomplete: "current-password", class: "input input-bordered mt-1 w-full", required: true %>
+    </div>
+
+    <% if devise_mapping.rememberable? %>
+      <label class="inline-flex items-center gap-2 text-sm text-slate-600">
+        <%= f.check_box :remember_me, class: "checkbox checkbox-sm" %>
+        Keep me signed in
+      </label>
+    <% end %>
+
+    <%= f.submit "Sign in", class: quick_action_classes(:primary), data: { form_state_target: "submit" } %>
+  <% end %>
+
+  <div class="mt-4">
+    <%= button_to "Continue with Google", user_google_oauth2_omniauth_authorize_path, method: :post, class: quick_action_classes(:secondary) %>
+  </div>
+
+  <%= render "devise/shared/links" %>
+</section>

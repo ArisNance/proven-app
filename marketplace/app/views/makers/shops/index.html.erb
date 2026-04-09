@@ -1,0 +1,63 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Maker shops" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Maker Workspace",
+  title: "Your Shops",
+  description: "Track approval status, billing sync, and the next action for every shop.",
+  actions: [{ label: "Create shop", path: new_makers_shop_path, style: :primary }] %>
+
+<section class="surface-panel p-5">
+  <div class="mb-4 flex flex-wrap items-center gap-2" role="tablist" aria-label="Filter shops by status">
+    <%= link_to "All", makers_shops_path, class: @state_filter.blank? ? quick_action_classes(:primary) : quick_action_classes(:secondary) %>
+    <% Shop.states.keys.each do |state| %>
+      <%= link_to state.titleize, makers_shops_path(state: state), class: @state_filter == state ? quick_action_classes(:primary) : quick_action_classes(:secondary) %>
+    <% end %>
+  </div>
+
+  <% if @shops.any? %>
+    <div class="data-table-wrap">
+      <table class="data-table" aria-describedby="shops-table-caption">
+        <caption id="shops-table-caption" class="sr-only">List of maker shops and approval status</caption>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Approval</th>
+            <th>Billing</th>
+            <th>Updated</th>
+            <th class="text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @shops.each do |shop| %>
+            <% latest_subscription = shop.listing_fee_subscriptions.order(created_at: :desc).first %>
+            <tr>
+              <td class="font-semibold text-slate-800"><%= shop.name %></td>
+              <td><span class="<%= status_pill_class(shop.state) %>"><%= shop.state %></span></td>
+              <td>
+                <% if latest_subscription.present? %>
+                  <span class="<%= status_pill_class(latest_subscription.status) %>"><%= latest_subscription.status %></span>
+                <% elsif shop.stripe_customer_id.present? %>
+                  <span class="status-pill bg-sky-50 text-sky-700">customer ready</span>
+                <% else %>
+                  <span class="status-pill bg-slate-100 text-slate-600">not configured</span>
+                <% end %>
+              </td>
+              <td class="text-sm text-slate-500"><%= l(shop.updated_at, format: :short) %></td>
+              <td class="text-right">
+                <%= link_to "Open", makers_shop_path(shop), class: quick_action_classes(:secondary) %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <%= render "shared/empty_state",
+      title: "No shops yet",
+      description: "Create your first shop to start approvals and listing fee billing.",
+      action: { label: "Create your first shop", path: new_makers_shop_path, style: :primary } %>
+  <% end %>
+</section>

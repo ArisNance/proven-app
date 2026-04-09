@@ -1,0 +1,37 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Messages" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Inbox",
+  title: "Conversations",
+  description: "Track all buyer-maker conversations and respond quickly.",
+  actions: [{ label: "Dashboard", path: dashboard_index_path, style: :secondary }] %>
+
+<section class="surface-panel p-5">
+  <% if @conversations.any? %>
+    <ul class="space-y-3" aria-label="Conversation list">
+      <% @conversations.each do |conversation| %>
+        <% other_party = conversation.buyer_id == current_user.id ? conversation.maker : conversation.buyer %>
+        <% preview_message = conversation.messages.last %>
+        <li>
+          <%= link_to conversation_path(conversation), class: "block rounded-2xl border border-slate-200 p-4 hover:border-slate-300 hover:bg-slate-50" do %>
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <p class="text-sm font-semibold text-slate-900"><%= other_party&.email || "Conversation ##{conversation.id}" %></p>
+                <p class="mt-1 text-sm text-slate-600"><%= preview_message.present? ? truncate(preview_message.body, length: 90) : "No messages yet" %></p>
+              </div>
+              <p class="text-xs text-slate-500"><%= conversation.updated_at.present? ? time_ago_in_words(conversation.updated_at) + " ago" : "now" %></p>
+            </div>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <%= render "shared/empty_state",
+      title: "No conversations yet",
+      description: "When you start messaging makers or buyers, threads will appear here.",
+      action: { label: "Open dashboard", path: dashboard_index_path, style: :primary } %>
+  <% end %>
+</section>

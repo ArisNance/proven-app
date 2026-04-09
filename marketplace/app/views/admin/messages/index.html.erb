@@ -1,0 +1,37 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Admin", path: admin_root_path },
+  { label: "Messages" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Admin Messages",
+  title: "Manage Messages",
+  description: "Review and moderate all conversation messages.",
+  actions: [{ label: "Admin home", path: admin_root_path, style: :secondary }] %>
+
+<section class="surface-panel p-5">
+  <div class="overflow-x-auto">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Sender</th>
+          <th>Conversation</th>
+          <th>Body</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @messages.each do |message| %>
+          <tr>
+            <td><%= message.id %></td>
+            <td><%= message.sender&.email %></td>
+            <td>#<%= message.conversation_id %></td>
+            <td><%= truncate(message.body, length: 90) %></td>
+            <td><%= link_to "Open", admin_message_path(message), class: quick_action_classes(:secondary) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

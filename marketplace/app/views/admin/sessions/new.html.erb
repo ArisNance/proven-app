@@ -1,0 +1,28 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Admin Login" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Proven Admin",
+  title: "Secure Admin Sign In",
+  description: "Enter static admin credentials to access moderation, users, products, shops, and messages.",
+  actions: [{ label: "Back to home", path: root_path, style: :secondary }] %>
+
+<section class="mx-auto max-w-xl surface-panel p-6">
+  <%= form_with url: admin_login_path, method: :post, class: "grid gap-4" do %>
+    <div>
+      <label class="field-label" for="username">Username</label>
+      <input id="username" name="username" type="text" required class="input input-bordered mt-1 w-full" autocomplete="username">
+    </div>
+
+    <div>
+      <label class="field-label" for="password">Password</label>
+      <input id="password" name="password" type="password" required class="input input-bordered mt-1 w-full" autocomplete="current-password">
+    </div>
+
+    <div class="mt-2">
+      <button type="submit" class="<%= quick_action_classes(:primary) %>">Sign in to Admin</button>
+    </div>
+  <% end %>
+</section>

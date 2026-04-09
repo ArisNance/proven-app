@@ -1,0 +1,44 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Admin", path: admin_root_path },
+  { label: "Products" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Admin Products",
+  title: "Manage Products",
+  description: "Search and edit the dynamic catalog used by storefront and testing workflows.",
+  actions: [{ label: "Admin home", path: admin_root_path, style: :secondary }] %>
+
+<section class="surface-panel p-5">
+  <%= form_with url: admin_products_path, method: :get, class: "grid gap-3 md:grid-cols-[1fr_auto]" do %>
+    <input type="search" name="q" value="<%= @query %>" class="input input-bordered w-full" placeholder="Search product name">
+    <button type="submit" class="<%= quick_action_classes(:primary) %>">Search</button>
+  <% end %>
+</section>
+
+<section class="mt-4 surface-panel p-5">
+  <div class="overflow-x-auto">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Updated</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @products.each do |product| %>
+          <tr>
+            <td><%= product.id %></td>
+            <td><%= product.name %></td>
+            <td><span class="<%= status_pill_class(product.status) %>"><%= product.status %></span></td>
+            <td><%= l(product.updated_at, format: :short) %></td>
+            <td><%= link_to "Open", admin_product_path(product), class: quick_action_classes(:secondary) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

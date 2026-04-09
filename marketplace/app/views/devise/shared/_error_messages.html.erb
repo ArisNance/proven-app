@@ -1,0 +1,10 @@
+<% if resource.errors.any? %>
+  <section class="form-error-summary" role="alert" aria-live="assertive">
+    <h2 class="font-semibold text-rose-800"><%= pluralize(resource.errors.count, "issue") %> prevented this form from submitting.</h2>
+    <ul class="mt-2 list-disc space-y-1 pl-5 text-sm text-rose-700">
+      <% resource.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>

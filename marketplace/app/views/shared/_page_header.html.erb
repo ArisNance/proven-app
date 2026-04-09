@@ -1,0 +1,19 @@
+<header class="page-header <%= local_assigns[:compact] ? 'page-header-compact' : '' %>" data-reveal data-reveal-delay="40">
+  <div data-reveal data-reveal-delay="70">
+    <% if local_assigns[:eyebrow].present? %>
+      <p class="eyebrow"><%= eyebrow %></p>
+    <% end %>
+    <h1 class="page-title"><%= title %></h1>
+    <% if local_assigns[:description].present? %>
+      <p class="page-subtitle"><%= description %></p>
+    <% end %>
+  </div>
+
+  <% if local_assigns[:actions].present? %>
+    <div class="page-header-actions" aria-label="Quick actions" data-reveal data-reveal-delay="110">
+      <% actions.each do |action| %>
+        <%= link_to action[:label], action[:path], class: quick_action_classes(action[:style] || :secondary) %>
+      <% end %>
+    </div>
+  <% end %>
+</header>

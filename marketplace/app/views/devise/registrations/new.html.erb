@@ -1,0 +1,37 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Create account" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Account",
+  title: "Create your Proven account",
+  description: "Start as a buyer and unlock maker tools when you are ready." %>
+
+<section class="mx-auto max-w-xl form-card">
+  <%= render "devise/shared/error_messages", resource: resource %>
+
+  <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "grid gap-4", data: { controller: "form-state" } }) do |f| %>
+    <div>
+      <label class="field-label" for="user_email">Email <span class="field-meta">Required</span></label>
+      <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "input input-bordered mt-1 w-full", required: true %>
+    </div>
+
+    <div>
+      <label class="field-label" for="user_password">Password <span class="field-meta">Required</span></label>
+      <%= f.password_field :password, autocomplete: "new-password", class: "input input-bordered mt-1 w-full", required: true %>
+      <% if @minimum_password_length %>
+        <p class="field-hint"><%= @minimum_password_length %> characters minimum.</p>
+      <% end %>
+    </div>
+
+    <div>
+      <label class="field-label" for="user_password_confirmation">Confirm password <span class="field-meta">Required</span></label>
+      <%= f.password_field :password_confirmation, autocomplete: "new-password", class: "input input-bordered mt-1 w-full", required: true %>
+    </div>
+
+    <%= f.submit "Create account", class: quick_action_classes(:primary), data: { form_state_target: "submit" } %>
+  <% end %>
+
+  <%= render "devise/shared/links" %>
+</section>

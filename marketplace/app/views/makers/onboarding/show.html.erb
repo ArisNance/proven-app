@@ -1,0 +1,110 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Maker onboarding" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Maker Setup",
+  title: "Complete Your Maker Profile",
+  description: "This profile is used for shop trust signals, reviewer context, and Stripe payout onboarding.",
+  actions: [{ label: "View shops", path: makers_shops_path, style: :secondary }] %>
+
+<section class="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+  <article class="form-card">
+    <%= render "shared/form_error_summary", record: @maker_profile %>
+
+    <%= form_with model: @maker_profile, url: makers_onboarding_path, class: "grid gap-4 md:grid-cols-2", data: { controller: "form-state" } do |f| %>
+      <div>
+        <label class="field-label" for="maker_profile_display_name">Display name <span class="field-meta">Required</span></label>
+        <%= f.text_field :display_name,
+          class: "input input-bordered mt-1 w-full",
+          required: true,
+          autocomplete: "name",
+          aria: { describedby: "display_name_hint maker_profile_display_name_error" } %>
+        <p class="field-hint" id="display_name_hint">The public name buyers see across listings and messages.</p>
+        <%= inline_field_error(@maker_profile, :display_name) %>
+      </div>
+
+      <div>
+        <label class="field-label" for="maker_profile_country">Country <span class="field-meta">Required</span></label>
+        <%= f.text_field :country,
+          class: "input input-bordered mt-1 w-full",
+          required: true,
+          list: "maker-country-options",
+          autocomplete: "country-name",
+          aria: { describedby: "country_hint maker_profile_country_error" } %>
+        <datalist id="maker-country-options">
+          <% if defined?(Spree::Country) %>
+            <% Spree::Country.order(:name).pluck(:name).each do |country_name| %>
+              <option value="<%= country_name %>"></option>
+            <% end %>
+          <% end %>
+        </datalist>
+        <p class="field-hint" id="country_hint">Used for compliance checks and buyer expectations.</p>
+        <%= inline_field_error(@maker_profile, :country) %>
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="field-label" for="maker_profile_bio">Bio <span class="field-meta">Optional</span></label>
+        <%= f.text_area :bio,
+          class: "textarea textarea-bordered mt-1 h-28 w-full",
+          placeholder: "Tell buyers what you make and why.",
+          aria: { describedby: "bio_hint maker_profile_bio_error" } %>
+        <p class="field-hint" id="bio_hint">A short origin story improves shop trust and conversion.</p>
+        <%= inline_field_error(@maker_profile, :bio) %>
+      </div>
+
+      <div>
+        <label class="field-label" for="maker_profile_preferred_currency">Preferred currency <span class="field-meta">Required</span></label>
+        <%= f.text_field :preferred_currency,
+          class: "input input-bordered mt-1 w-full",
+          required: true,
+          list: "maker-currency-options",
+          maxlength: 3,
+          pattern: "[A-Za-z]{3}",
+          placeholder: "USD",
+          title: "Enter a 3-letter currency code (example: USD)",
+          aria: { describedby: "currency_hint maker_profile_preferred_currency_error" } %>
+        <datalist id="maker-currency-options">
+          <% if defined?(Money::Currency) %>
+            <% Money::Currency.table.keys.map(&:to_s).map(&:upcase).sort.each do |currency_code| %>
+              <option value="<%= currency_code %>"></option>
+            <% end %>
+          <% end %>
+        </datalist>
+        <p class="field-hint" id="currency_hint">Used for listing fee billing and payout defaults.</p>
+        <%= inline_field_error(@maker_profile, :preferred_currency) %>
+      </div>
+
+      <div class="md:col-span-2 mt-2 flex flex-wrap gap-2">
+        <%= f.submit "Save and continue", class: quick_action_classes(:primary), data: { form_state_target: "submit" } %>
+        <%= link_to "Cancel", dashboard_index_path, class: quick_action_classes(:secondary) %>
+      </div>
+    <% end %>
+  </article>
+
+  <aside class="surface-panel p-5">
+    <h2 class="text-lg font-bold">Onboarding Progress</h2>
+    <ol class="mt-4 space-y-3 text-sm text-slate-600">
+      <li class="rounded-xl border border-slate-200 p-3">
+        <p class="font-semibold text-slate-900">1. Profile details</p>
+        <p>Complete public identity and shop context.</p>
+      </li>
+      <li class="rounded-xl border border-slate-200 p-3">
+        <p class="font-semibold text-slate-900">2. Payout setup</p>
+        <p>Connect Stripe Express so payouts can be routed securely.</p>
+        <% if @stripe_onboarding_url.present? %>
+          <div class="mt-2">
+            <%= link_to "Continue Stripe onboarding", @stripe_onboarding_url, class: quick_action_classes(:secondary), target: "_blank", rel: "noreferrer" %>
+          </div>
+        <% else %>
+          <p class="mt-2 text-xs text-slate-500">Stripe link appears after your profile is saved and Stripe keys are configured.</p>
+        <% end %>
+      </li>
+      <li class="rounded-xl border border-slate-200 p-3">
+        <p class="font-semibold text-slate-900">3. Submit your shop</p>
+        <p>Create a shop and send it for approval review.</p>
+      </li>
+    </ol>
+  </aside>
+</section>
