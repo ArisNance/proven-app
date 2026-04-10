@@ -12,11 +12,11 @@ module Admin
     end
 
     def show
-      @product = Spree::Product.find(params[:id])
+      @product = find_product!(params[:id])
     end
 
     def update
-      product = Spree::Product.find(params[:id])
+      product = find_product!(params[:id])
       product.assign_attributes(product_params)
 
       if params[:spree_product][:price].present? && product.respond_to?(:price=)
@@ -34,7 +34,7 @@ module Admin
     end
 
     def destroy
-      product = Spree::Product.find(params[:id])
+      product = find_product!(params[:id])
       product_name = product.name
       product.destroy!
       redirect_to admin_products_path, notice: "Product #{product_name} removed."
@@ -43,6 +43,13 @@ module Admin
     end
 
     private
+
+    def find_product!(identifier)
+      token = identifier.to_s
+      return Spree::Product.find(token) if token.match?(/\A\d+\z/)
+
+      Spree::Product.find_by!(slug: token)
+    end
 
     def product_params
       params.require(:spree_product).permit(:name, :description, :status)

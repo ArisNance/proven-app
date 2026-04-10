@@ -245,6 +245,76 @@
     pointer-events: none;
   }
 
+  .market-container {
+    max-width: 920px;
+    width: 100%;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    background: #F4F4F1;
+  }
+
+  .market-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .pulse {
+    animation: pulse 4s ease-in-out infinite;
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+
+  .pulse-delay {
+    animation: pulse 5s ease-in-out infinite 1s;
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+
+  .float-1 {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .float-2 {
+    animation: float 5.5s ease-in-out infinite 2s;
+  }
+
+  .bob-1 {
+    animation: bob 3s ease-in-out infinite;
+    transform-origin: bottom;
+    transform-box: fill-box;
+  }
+
+  .bob-2 {
+    animation: bob 3.5s ease-in-out infinite 0.5s;
+    transform-origin: bottom;
+    transform-box: fill-box;
+  }
+
+  .bob-3 {
+    animation: bob 4s ease-in-out infinite 1s;
+    transform-origin: bottom;
+    transform-box: fill-box;
+  }
+
+  .bob-4 {
+    animation: bob 4.5s ease-in-out infinite 1.5s;
+    transform-origin: bottom;
+    transform-box: fill-box;
+  }
+
+  .interactive {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    cursor: pointer;
+    transform-origin: center;
+    transform-box: fill-box;
+  }
+
+  .interactive:hover {
+    transform: scale(1.08) translateY(-5px);
+  }
+
   .hero-pill {
     @apply inline-flex items-center gap-2 rounded-full border bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.08em];
     border-color: var(--color-border);
@@ -548,5 +618,40 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.04);
+    opacity: 1;
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-6px);
   }
 }
