@@ -1,0 +1,107 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Shop Dashboard" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Maker Workspace",
+  title: "Your Shop Dashboard",
+  description: "Manage shops, listing readiness, approvals, and buyer conversations.",
+  actions: role_quick_actions %>
+
+<section class="info-grid">
+  <article class="metric-tile">
+    <p class="metric-label">Shops</p>
+    <p class="metric-value"><%= @shops.count %></p>
+  </article>
+  <article class="metric-tile">
+    <p class="metric-label">Approved shops</p>
+    <p class="metric-value"><%= @approved_shop_count %></p>
+  </article>
+  <article class="metric-tile">
+    <p class="metric-label">Products</p>
+    <p class="metric-value"><%= @products_count %></p>
+  </article>
+  <article class="metric-tile">
+    <p class="metric-label">Pending approvals</p>
+    <p class="metric-value"><%= @pending_shop_approvals %></p>
+  </article>
+</section>
+
+<section class="mt-4 grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+  <article class="surface-panel p-5">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <h2 class="text-xl font-bold">Your Shops</h2>
+      <%= link_to "Create shop", new_makers_shop_path, class: quick_action_classes(:primary) %>
+    </div>
+
+    <% if @shops.any? %>
+      <div class="mt-4 space-y-3">
+        <% @shops.each do |shop| %>
+          <article class="rounded-2xl border border-[#E8E8E2] p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p class="text-lg font-semibold text-[#0D0D0D]"><%= shop.name %></p>
+                <p class="mt-1 text-sm text-[#4A4A42]"><%= truncate(shop.description, length: 130) %></p>
+                <p class="mt-2 text-xs text-[#8A8A80]">Username: <%= shop.username.presence || "not set" %></p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="<%= status_pill_class(shop.state) %>"><%= shop.state.humanize %></span>
+                <%= link_to "Manage", makers_shop_path(shop), class: quick_action_classes(:secondary) %>
+                <% if shop.username.present? %>
+                  <%= link_to "Public profile", makers_public_profile_path(username: shop.username), class: quick_action_classes(:secondary) %>
+                <% end %>
+              </div>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    <% else %>
+      <%= render "shared/empty_state",
+        title: "No shops yet",
+        description: "Complete maker onboarding to publish your first shop profile.",
+        action: { label: "Start onboarding", path: makers_profile_onboarding_path, style: :primary } %>
+    <% end %>
+  </article>
+
+  <aside class="space-y-4">
+    <section class="surface-panel p-5">
+      <h2 class="text-lg font-bold">Maker Verification</h2>
+      <% if @maker_application.present? %>
+        <p class="mt-2 text-sm text-[#4A4A42]">
+          Application status:
+          <span class="<%= status_pill_class(@maker_application.state) %>"><%= @maker_application.state.humanize %></span>
+        </p>
+      <% else %>
+        <p class="mt-2 text-sm text-[#4A4A42]">No maker application record found.</p>
+      <% end %>
+
+      <% if @maker_onboarding_profile.present? %>
+        <p class="mt-2 text-sm text-[#4A4A42]">
+          Onboarding:
+          <span class="<%= status_pill_class(@maker_onboarding_profile.state) %>"><%= @maker_onboarding_profile.state.humanize %></span>
+        </p>
+      <% end %>
+      <div class="mt-4">
+        <%= link_to "Edit onboarding profile", makers_profile_onboarding_path, class: quick_action_classes(:secondary) %>
+      </div>
+    </section>
+
+    <section class="surface-panel p-5">
+      <h2 class="text-lg font-bold">Recent Messages</h2>
+      <% if @recent_messages.any? %>
+        <ul class="mt-3 space-y-2">
+          <% @recent_messages.each do |message| %>
+            <li class="rounded-2xl border border-[#E8E8E2] p-3">
+              <p class="text-sm text-[#0D0D0D]"><%= truncate(message.body, length: 100) %></p>
+              <p class="mt-1 text-xs text-[#8A8A80]"><%= time_ago_in_words(message.created_at) %> ago</p>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="mt-2 text-sm text-[#4A4A42]">No messages yet.</p>
+      <% end %>
+    </section>
+  </aside>
+</section>
+

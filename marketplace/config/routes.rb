@@ -1,6 +1,7 @@
 require "sidekiq/web"
 
 Rails.application.routes.draw do
+  get "favicon.ico", to: "favicon#show"
   root "home#index"
 
   devise_for :users, controllers: {
@@ -9,10 +10,16 @@ Rails.application.routes.draw do
   }
 
   resources :products, only: %i[index show]
+  post "checkout/:product_id", to: "checkout#create", as: :checkout_create
+  get "checkout/success", to: "checkout#success", as: :checkout_success
+  get "checkout/cancel", to: "checkout#cancel", as: :checkout_cancel
 
   namespace :makers do
     get "onboarding", to: "onboarding#show"
     post "onboarding", to: "onboarding#create"
+    get "profile_onboarding", to: "profile_onboarding#show"
+    post "profile_onboarding", to: "profile_onboarding#create"
+    get "profile/:username", to: "profiles#show", as: :public_profile
     resources :shops, only: %i[index new create show]
   end
 
@@ -27,6 +34,12 @@ Rails.application.routes.draw do
     resources :shops, only: %i[index show update destroy]
     resources :products, only: %i[index show update destroy]
     resources :messages, only: %i[index show destroy]
+    resources :maker_applications, only: %i[index show update] do
+      member do
+        post :approve
+        post :reject
+      end
+    end
     resources :approvals, only: %i[index] do
       member do
         post :approve
@@ -42,6 +55,7 @@ Rails.application.routes.draw do
 
   namespace :shopify do
     get "oauth/start", to: "oauth#start"
+    get "oauth/callback", to: "oauth#callback"
     post "oauth/callback", to: "oauth#callback"
     post "sync/run", to: "sync#run"
   end

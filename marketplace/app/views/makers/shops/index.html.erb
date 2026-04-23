@@ -34,7 +34,12 @@
           <% @shops.each do |shop| %>
             <% latest_subscription = shop.listing_fee_subscriptions.order(created_at: :desc).first %>
             <tr>
-              <td class="font-semibold text-slate-800"><%= shop.name %></td>
+              <td class="font-semibold text-slate-800">
+                <%= shop.name %>
+                <% if shop.username.present? %>
+                  <p class="mt-1 text-xs text-slate-500">@<%= shop.username %></p>
+                <% end %>
+              </td>
               <td><span class="<%= status_pill_class(shop.state) %>"><%= shop.state %></span></td>
               <td>
                 <% if latest_subscription.present? %>
@@ -47,7 +52,12 @@
               </td>
               <td class="text-sm text-slate-500"><%= l(shop.updated_at, format: :short) %></td>
               <td class="text-right">
-                <%= link_to "Open", makers_shop_path(shop), class: quick_action_classes(:secondary) %>
+                <div class="flex justify-end gap-2">
+                  <%= link_to "Open", makers_shop_path(shop), class: quick_action_classes(:secondary) %>
+                  <% if shop.username.present? %>
+                    <%= link_to "Profile", makers_public_profile_path(username: shop.username), class: quick_action_classes(:secondary) %>
+                  <% end %>
+                </div>
               </td>
             </tr>
           <% end %>

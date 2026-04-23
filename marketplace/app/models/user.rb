@@ -6,7 +6,10 @@ class User < ApplicationRecord
 
   has_one :maker_profile, dependent: :destroy
   has_one :buyer_profile, dependent: :destroy
+  has_one :maker_application, dependent: :destroy
+  has_one :maker_onboarding_profile, dependent: :destroy
   has_many :shops, foreign_key: :maker_id, dependent: :destroy
+  has_many :shopify_connections, dependent: :destroy
   has_many :messages, foreign_key: :sender_id, dependent: :destroy
   has_many :buyer_conversations, class_name: "Conversation", foreign_key: :buyer_id, dependent: :destroy
   has_many :maker_conversations, class_name: "Conversation", foreign_key: :maker_id, dependent: :destroy
@@ -20,5 +23,13 @@ class User < ApplicationRecord
     user.password = Devise.friendly_token.first(20) if user.new_record?
     user.save!
     user
+  end
+
+  def seller_account?
+    maker? || shops.exists?
+  end
+
+  def buyer_only?
+    buyer? && !seller_account?
   end
 end

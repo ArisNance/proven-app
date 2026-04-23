@@ -1,0 +1,19 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Checkout", path: checkout_cancel_path },
+  { label: "Canceled" }
+] %>
+
+<section class="surface-panel p-6 md:p-8">
+  <p class="eyebrow">Checkout Canceled</p>
+  <h1 class="page-title mt-2">No payment was captured.</h1>
+  <p class="page-subtitle mt-3">
+    You can return to the listing and retry checkout any time.
+  </p>
+
+  <div class="mt-6 flex flex-wrap gap-3">
+    <%= link_to "Back to products", products_path, class: quick_action_classes(:primary) %>
+    <%= link_to "Go home", root_path, class: quick_action_classes(:secondary) %>
+  </div>
+</section>
+

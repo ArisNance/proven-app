@@ -1,0 +1,261 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Admin", path: admin_root_path },
+  { label: "Maker verification", path: admin_maker_applications_path },
+  { label: [@maker_application.first_name, @maker_application.last_name].join(" ") }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Admin Review",
+  title: "Maker Verification",
+  description: "Complete core verification checks and confidence scoring before approval.",
+  actions: [{ label: "Back to queue", path: admin_maker_applications_path, style: :secondary }] %>
+
+<section class="grid gap-4 xl:grid-cols-[1fr_0.9fr]">
+  <article class="surface-panel p-5">
+    <h2 class="text-xl font-bold text-[#0D0D0D]">Application Summary</h2>
+    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+      <div class="rounded-2xl border border-[#E8E8E2] p-3">
+        <p class="text-xs uppercase tracking-[0.08em] text-[#8A8A80]">Maker Name</p>
+        <p class="mt-1 font-semibold text-[#0D0D0D]"><%= [@maker_application.first_name, @maker_application.last_name].join(" ") %></p>
+      </div>
+      <div class="rounded-2xl border border-[#E8E8E2] p-3">
+        <p class="text-xs uppercase tracking-[0.08em] text-[#8A8A80]">Email</p>
+        <p class="mt-1 font-semibold text-[#0D0D0D]"><%= @maker_application.email %></p>
+      </div>
+      <div class="rounded-2xl border border-[#E8E8E2] p-3">
+        <p class="text-xs uppercase tracking-[0.08em] text-[#8A8A80]">Business Name</p>
+        <p class="mt-1 font-semibold text-[#0D0D0D]"><%= @maker_application.business_name %></p>
+      </div>
+      <div class="rounded-2xl border border-[#E8E8E2] p-3">
+        <p class="text-xs uppercase tracking-[0.08em] text-[#8A8A80]">Business URL</p>
+        <p class="mt-1"><%= link_to @maker_application.business_url, @maker_application.business_url, class: "font-semibold text-[#0D0D0D] underline", target: "_blank", rel: "noreferrer" %></p>
+      </div>
+      <div class="rounded-2xl border border-[#E8E8E2] p-3 sm:col-span-2">
+        <p class="text-xs uppercase tracking-[0.08em] text-[#8A8A80]">What they make</p>
+        <p class="mt-1 font-semibold text-[#0D0D0D]"><%= @maker_application.what_do_you_make %></p>
+      </div>
+      <div class="rounded-2xl border border-[#E8E8E2] p-3">
+        <p class="text-xs uppercase tracking-[0.08em] text-[#8A8A80]">How long</p>
+        <p class="mt-1 font-semibold text-[#0D0D0D]"><%= @maker_application.how_long_making.presence || "Not provided" %></p>
+      </div>
+      <div class="rounded-2xl border border-[#E8E8E2] p-3">
+        <p class="text-xs uppercase tracking-[0.08em] text-[#8A8A80]">Status</p>
+        <p class="mt-1"><span class="<%= status_pill_class(@maker_application.state) %>"><%= @maker_application.state.humanize %></span></p>
+      </div>
+    </div>
+  </article>
+
+  <aside class="surface-panel p-5">
+    <h2 class="text-xl font-bold text-[#0D0D0D]">Decision Actions</h2>
+    <p class="mt-2 text-sm text-[#4A4A42]">A maker must have overall verification confidence score of 4 or 5 to pass.</p>
+    <div class="mt-4 flex flex-wrap gap-2">
+      <%= button_to "Approve maker", approve_admin_maker_application_path(@maker_application), method: :post, class: quick_action_classes(:primary) %>
+      <%= button_to "Reject maker", reject_admin_maker_application_path(@maker_application), method: :post, class: "inline-flex items-center justify-center rounded-full border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50" %>
+    </div>
+  </aside>
+</section>
+
+<section class="form-card mt-4">
+  <h2 class="text-xl font-bold text-[#0D0D0D]">Verification Details</h2>
+
+  <%= form_with url: admin_maker_application_path(@maker_application), method: :patch, local: true, multipart: true, class: "mt-4 grid gap-6" do %>
+    <section class="grid gap-4 md:grid-cols-2">
+      <h3 class="md:col-span-2 text-lg font-bold text-[#0D0D0D]">Core Verification Status</h3>
+      <div>
+        <label class="field-label">Identity</label>
+        <%= select_tag "maker_verification[identity_status]", options_for_select(MakerVerification.identity_statuses.keys.map { |value| [value.humanize, value] }, @maker_verification.identity_status), include_blank: "Select status", class: "select select-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Workspace</label>
+        <%= select_tag "maker_verification[workspace_status]", options_for_select(MakerVerification.workspace_statuses.keys.map { |value| [value.humanize, value] }, @maker_verification.workspace_status), include_blank: "Select status", class: "select select-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Production Capability</label>
+        <%= select_tag "maker_verification[production_capability_status]", options_for_select(MakerVerification.production_capability_statuses.keys.map { |value| [value.humanize, value] }, @maker_verification.production_capability_status), include_blank: "Select status", class: "select select-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Product Origin</label>
+        <%= select_tag "maker_verification[product_origin_status]", options_for_select(MakerVerification.product_origin_statuses.keys.map { |value| [value.humanize, value] }, @maker_verification.product_origin_status), include_blank: "Select status", class: "select select-bordered mt-1 w-full" %>
+      </div>
+    </section>
+
+    <section class="grid gap-4 md:grid-cols-2">
+      <h3 class="md:col-span-2 text-lg font-bold text-[#0D0D0D]">Identity</h3>
+      <div>
+        <label class="field-label">Name given</label>
+        <%= text_field_tag "maker_verification[identity_name_given]", @maker_verification.identity_name_given, class: "input input-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">ID verified (Y/N)</label>
+        <%= select_tag "maker_verification[identity_id_verified]", options_for_select([["Pending", ""], ["Yes", true], ["No", false]], @maker_verification.identity_id_verified), class: "select select-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Name match confidence (1-5)</label>
+        <%= number_field_tag "maker_verification[identity_name_match_confidence]", @maker_verification.identity_name_match_confidence, min: 1, max: 5, class: "input input-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Identity attachments</label>
+        <%= file_field_tag "maker_verification[identity_attachments][]", multiple: true, class: "file-input file-input-bordered mt-1 w-full" %>
+      </div>
+      <div class="md:col-span-2">
+        <label class="field-label">Reviewer notes</label>
+        <%= text_area_tag "maker_verification[identity_notes]", @maker_verification.identity_notes, class: "textarea textarea-bordered mt-1 h-24 w-full" %>
+      </div>
+      <% if @maker_verification.identity_attachments.attached? %>
+        <div class="md:col-span-2 rounded-2xl border border-[#E8E8E2] p-3 text-sm">
+          <p class="font-semibold text-[#0D0D0D]">Existing identity attachments</p>
+          <ul class="mt-2 list-disc pl-5 text-[#4A4A42]">
+            <% @maker_verification.identity_attachments.each do |attachment| %>
+              <li><%= link_to attachment.filename.to_s, rails_blob_path(attachment, disposition: "attachment"), class: "underline" %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+    </section>
+
+    <section class="grid gap-4 md:grid-cols-2">
+      <h3 class="md:col-span-2 text-lg font-bold text-[#0D0D0D]">Workspace</h3>
+      <div>
+        <label class="field-label">Type</label>
+        <%= select_tag "maker_verification[workspace_type]", options_for_select(MakerVerification.workspace_types.keys.map { |value| [value.humanize, value] }, @maker_verification.workspace_type), include_blank: "Select type", class: "select select-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Reviewer confidence (1-5)</label>
+        <%= number_field_tag "maker_verification[workspace_confidence]", @maker_verification.workspace_confidence, min: 1, max: 5, class: "input input-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Workspace media attachments</label>
+        <%= file_field_tag "maker_verification[workspace_attachments][]", multiple: true, class: "file-input file-input-bordered mt-1 w-full" %>
+      </div>
+      <div class="md:col-span-2">
+        <label class="field-label">Reviewer notes</label>
+        <%= text_area_tag "maker_verification[workspace_notes]", @maker_verification.workspace_notes, class: "textarea textarea-bordered mt-1 h-24 w-full" %>
+      </div>
+    </section>
+
+    <section class="grid gap-4 md:grid-cols-2">
+      <h3 class="md:col-span-2 text-lg font-bold text-[#0D0D0D]">Production</h3>
+      <div>
+        <label class="field-label">In-progress product seen (Y/N)</label>
+        <%= select_tag "maker_verification[production_in_progress_product_seen]", options_for_select([["Pending", ""], ["Yes", true], ["No", false]], @maker_verification.production_in_progress_product_seen), class: "select select-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Process explained (Y/N)</label>
+        <%= select_tag "maker_verification[production_process_explained]", options_for_select([["Pending", ""], ["Yes", true], ["No", false]], @maker_verification.production_process_explained), class: "select select-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Materials observed (Y/N)</label>
+        <%= select_tag "maker_verification[production_materials_observed]", options_for_select([["Pending", ""], ["Yes", true], ["No", false]], @maker_verification.production_materials_observed), class: "select select-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Complexity level</label>
+        <%= select_tag "maker_verification[production_complexity_level]", options_for_select(MakerVerification.production_complexity_levels.keys.map { |value| [value.humanize, value] }, @maker_verification.production_complexity_level), include_blank: "Select complexity", class: "select select-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Reviewer confidence (1-5)</label>
+        <%= number_field_tag "maker_verification[production_confidence]", @maker_verification.production_confidence, min: 1, max: 5, class: "input input-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Production attachments</label>
+        <%= file_field_tag "maker_verification[production_attachments][]", multiple: true, class: "file-input file-input-bordered mt-1 w-full" %>
+      </div>
+      <div class="md:col-span-2">
+        <label class="field-label">Reviewer notes</label>
+        <%= text_area_tag "maker_verification[production_notes]", @maker_verification.production_notes, class: "textarea textarea-bordered mt-1 h-24 w-full" %>
+      </div>
+    </section>
+
+    <section class="grid gap-4 md:grid-cols-2">
+      <h3 class="md:col-span-2 text-lg font-bold text-[#0D0D0D]">Product Origin</h3>
+      <div>
+        <label class="field-label">Product matched to maker (Y/N)</label>
+        <%= select_tag "maker_verification[product_origin_matched_to_maker]", options_for_select([["Pending", ""], ["Yes", true], ["No", false]], @maker_verification.product_origin_matched_to_maker), class: "select select-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Product categories verified (Y/N)</label>
+        <%= select_tag "maker_verification[product_origin_categories_verified]", options_for_select([["Pending", ""], ["Yes", true], ["No", false]], @maker_verification.product_origin_categories_verified), class: "select select-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Any inconsistencies flagged (Y/N)</label>
+        <%= select_tag "maker_verification[product_origin_inconsistencies_flagged]", options_for_select([["Pending", ""], ["Yes", true], ["No", false]], @maker_verification.product_origin_inconsistencies_flagged), class: "select select-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Reviewer confidence (1-5)</label>
+        <%= number_field_tag "maker_verification[product_origin_confidence]", @maker_verification.product_origin_confidence, min: 1, max: 5, class: "input input-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Product origin attachments</label>
+        <%= file_field_tag "maker_verification[product_origin_attachments][]", multiple: true, class: "file-input file-input-bordered mt-1 w-full" %>
+      </div>
+      <div class="md:col-span-2">
+        <label class="field-label">Reviewer notes</label>
+        <%= text_area_tag "maker_verification[product_origin_notes]", @maker_verification.product_origin_notes, class: "textarea textarea-bordered mt-1 h-24 w-full" %>
+      </div>
+    </section>
+
+    <section class="grid gap-4 md:grid-cols-2">
+      <h3 class="md:col-span-2 text-lg font-bold text-[#0D0D0D]">Red Flags</h3>
+      <label class="inline-flex items-center gap-2">
+        <%= check_box_tag "maker_verification[red_flag_stock_like_imagery]", "1", @maker_verification.red_flag_stock_like_imagery %>
+        <span class="text-sm text-[#4A4A42]">Stock-like imagery</span>
+      </label>
+      <label class="inline-flex items-center gap-2">
+        <%= check_box_tag "maker_verification[red_flag_inconsistent_story]", "1", @maker_verification.red_flag_inconsistent_story %>
+        <span class="text-sm text-[#4A4A42]">Inconsistent story</span>
+      </label>
+      <label class="inline-flex items-center gap-2">
+        <%= check_box_tag "maker_verification[red_flag_no_in_progress_proof]", "1", @maker_verification.red_flag_no_in_progress_proof %>
+        <span class="text-sm text-[#4A4A42]">No in-progress proof</span>
+      </label>
+      <label class="inline-flex items-center gap-2">
+        <%= check_box_tag "maker_verification[red_flag_unclear_production_chain]", "1", @maker_verification.red_flag_unclear_production_chain %>
+        <span class="text-sm text-[#4A4A42]">Unclear production chain</span>
+      </label>
+    </section>
+
+    <section class="grid gap-4 md:grid-cols-2">
+      <h3 class="md:col-span-2 text-lg font-bold text-[#0D0D0D]">Classification & Reviewer Metadata</h3>
+      <div>
+        <label class="field-label">Maker type classification</label>
+        <%= select_tag "maker_verification[maker_type_classification]", options_for_select(MakerVerification.maker_type_classifications.keys.map { |value| [value.humanize, value] }, @maker_verification.maker_type_classification), include_blank: "Select type", class: "select select-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Overall verification confidence score (1-5)</label>
+        <%= number_field_tag "maker_verification[overall_confidence_score]", @maker_verification.overall_confidence_score, min: 1, max: 5, class: "input input-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Verification method</label>
+        <%= select_tag "maker_verification[verification_method]", options_for_select(MakerVerification.verification_methods.keys.map { |value| [value.humanize, value] }, @maker_verification.verification_method), include_blank: "Select method", class: "select select-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Duration (minutes)</label>
+        <%= number_field_tag "maker_verification[verification_duration_minutes]", @maker_verification.verification_duration_minutes, min: 0, class: "input input-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Date verified</label>
+        <%= datetime_local_field_tag "maker_verification[verified_on]", (@maker_verification.verified_on&.strftime("%Y-%m-%dT%H:%M")), class: "input input-bordered mt-1 w-full" %>
+      </div>
+      <div>
+        <label class="field-label">Reviewer attachments</label>
+        <%= file_field_tag "maker_verification[reviewer_attachments][]", multiple: true, class: "file-input file-input-bordered mt-1 w-full" %>
+      </div>
+      <div class="md:col-span-2 rounded-2xl border border-[#E8E8E2] p-3 text-sm text-[#4A4A42]">
+        <p><strong class="text-[#0D0D0D]">Verified by:</strong> <%= @maker_verification.verified_by&.email || "Not assigned" %></p>
+      </div>
+      <div class="md:col-span-2">
+        <label class="field-label">Reviewer notes</label>
+        <%= text_area_tag "maker_verification[reviewer_notes]", @maker_verification.reviewer_notes, class: "textarea textarea-bordered mt-1 h-24 w-full" %>
+      </div>
+      <div class="md:col-span-2">
+        <label class="field-label">Admin notes</label>
+        <%= text_area_tag "maker_application[admin_notes]", @maker_application.admin_notes, class: "textarea textarea-bordered mt-1 h-20 w-full" %>
+      </div>
+    </section>
+
+    <div class="flex flex-wrap gap-2">
+      <%= submit_tag "Save verification details", class: quick_action_classes(:primary) %>
+      <%= link_to "Back to queue", admin_maker_applications_path, class: quick_action_classes(:secondary) %>
+    </div>
+  <% end %>
+</section>

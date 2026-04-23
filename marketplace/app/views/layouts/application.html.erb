@@ -39,6 +39,9 @@
         <div class="flex items-center gap-2">
           <%= link_to "Shop", products_path, class: "inline-flex items-center rounded-full border border-[#CCCCC4] px-3 py-2 text-sm font-medium text-[#4A4A42] hover:border-[#0D0D0D] md:hidden" %>
           <% if user_signed_in? %>
+            <% if sell_on_proven_eligible? %>
+              <%= link_to "Sell on Proven", makers_onboarding_path, class: "hidden md:inline-flex items-center rounded-full bg-[#D4F93D] px-3 py-2 text-sm font-semibold text-black hover:bg-[#B8DC28]" %>
+            <% end %>
             <%= link_to "Account", dashboard_index_path, class: "inline-flex items-center rounded-full border border-[#CCCCC4] px-3 py-2 text-sm font-medium text-[#4A4A42] hover:border-[#0D0D0D]" %>
             <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "inline-flex items-center rounded-full border border-[#CCCCC4] px-3 py-2 text-sm font-medium text-[#4A4A42] hover:border-[#0D0D0D]" %>
           <% else %>

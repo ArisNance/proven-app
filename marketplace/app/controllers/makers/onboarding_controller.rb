@@ -3,45 +3,46 @@ module Makers
     before_action :authenticate_user!
 
     def show
-      @maker_profile = current_user.maker_profile || current_user.build_maker_profile(preferred_currency: "USD")
-      @stripe_onboarding_url = stripe_onboarding_url_for(@maker_profile)
+      @maker_application = current_user.maker_application || current_user.build_maker_application
+      @maker_application.email ||= current_user.email
     end
 
     def create
-      @maker_profile = current_user.maker_profile || current_user.build_maker_profile
-      @maker_profile.assign_attributes(maker_profile_params)
+      @maker_application = current_user.maker_application || current_user.build_maker_application
+      @maker_application.assign_attributes(maker_application_params)
+      @maker_application.state = next_application_state(@maker_application)
+      @maker_application.submitted_at ||= Time.current
 
-      if @maker_profile.save
-        create_connect_account_if_possible(@maker_profile)
-        redirect_to new_makers_shop_path, notice: "Profile saved. Continue with your shop setup."
+      if @maker_application.save
+        if @maker_application.accepted?
+          redirect_to makers_profile_onboarding_path, notice: "Application accepted. Complete your onboarding profile."
+        else
+          redirect_to dashboard_index_path, notice: "Your maker application has been submitted for review."
+        end
       else
-        @stripe_onboarding_url = stripe_onboarding_url_for(@maker_profile)
         render :show, status: :unprocessable_entity
       end
     end
 
     private
 
-    def maker_profile_params
-      params.require(:maker_profile).permit(:display_name, :bio, :country, :preferred_currency)
+    def maker_application_params
+      params.require(:maker_application).permit(
+        :first_name,
+        :last_name,
+        :email,
+        :business_name,
+        :business_url,
+        :what_do_you_make,
+        :how_long_making
+      )
     end
 
-    def create_connect_account_if_possible(profile)
-      return if ENV["STRIPE_SECRET_KEY"].blank?
+    def next_application_state(application)
+      return :accepted if application.accepted?
+      return :in_review if application.in_review?
 
-      StripeConnectService.create_or_fetch_account!(profile)
-    rescue Stripe::StripeError => e
-      Rails.logger.error("Stripe Connect onboarding setup failed for maker_profile #{profile.id}: #{e.message}")
-      flash[:alert] = "Profile saved, but payout onboarding is currently unavailable. You can retry from the shop pages."
-    end
-
-    def stripe_onboarding_url_for(profile)
-      return if profile.blank? || profile.stripe_account_id.blank? || ENV["STRIPE_SECRET_KEY"].blank?
-
-      StripeConnectService.onboarding_link(profile.stripe_account_id)
-    rescue Stripe::StripeError => e
-      Rails.logger.warn("Stripe onboarding link failed for maker_profile #{profile.id}: #{e.message}")
-      nil
+      :submitted
     end
   end
 end

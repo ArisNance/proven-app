@@ -1,0 +1,74 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Admin", path: admin_root_path },
+  { label: "Maker Verification" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Admin Console",
+  title: "Maker Verification Queue",
+  description: "Review maker applications and complete verification scoring before approval.",
+  actions: [{ label: "Approvals queue", path: admin_approvals_path, style: :secondary }] %>
+
+<section class="info-grid">
+  <article class="metric-tile">
+    <p class="metric-label">Submitted</p>
+    <p class="metric-value"><%= @maker_applications.count { |application| application.submitted? } %></p>
+  </article>
+  <article class="metric-tile">
+    <p class="metric-label">In review</p>
+    <p class="metric-value"><%= @maker_applications.count { |application| application.in_review? } %></p>
+  </article>
+  <article class="metric-tile">
+    <p class="metric-label">Accepted</p>
+    <p class="metric-value"><%= @maker_applications.count { |application| application.accepted? } %></p>
+  </article>
+  <article class="metric-tile">
+    <p class="metric-label">Rejected</p>
+    <p class="metric-value"><%= @maker_applications.count { |application| application.rejected? } %></p>
+  </article>
+</section>
+
+<section class="surface-panel mt-4 p-5">
+  <div class="flex flex-wrap items-center gap-2">
+    <%= link_to "All", admin_maker_applications_path, class: quick_action_classes(:secondary) %>
+    <% MakerApplication.states.keys.each do |state_key| %>
+      <%= link_to state_key.humanize, admin_maker_applications_path(state: state_key), class: quick_action_classes(:secondary) %>
+    <% end %>
+  </div>
+
+  <% if @maker_applications.any? %>
+    <div class="data-table-wrap mt-4">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="px-3 py-2 text-left">Maker</th>
+            <th class="px-3 py-2 text-left">Business</th>
+            <th class="px-3 py-2 text-left">Status</th>
+            <th class="px-3 py-2 text-left">Submitted</th>
+            <th class="px-3 py-2 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @maker_applications.each do |application| %>
+            <tr>
+              <td class="px-3 py-2">
+                <p class="font-semibold text-[#0D0D0D]"><%= [application.first_name, application.last_name].join(" ") %></p>
+                <p class="text-xs text-[#8A8A80]"><%= application.email %></p>
+              </td>
+              <td class="px-3 py-2 text-sm text-[#4A4A42]"><%= application.business_name %></td>
+              <td class="px-3 py-2"><span class="<%= status_pill_class(application.state) %>"><%= application.state.humanize %></span></td>
+              <td class="px-3 py-2 text-sm text-[#4A4A42]"><%= application.submitted_at.present? ? l(application.submitted_at.to_date, format: :long) : "n/a" %></td>
+              <td class="px-3 py-2 text-right">
+                <%= link_to "Review", admin_maker_application_path(application), class: quick_action_classes(:primary) %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <%= render "shared/empty_state", title: "No maker applications", description: "New applications will appear here for verification review." %>
+  <% end %>
+</section>
+

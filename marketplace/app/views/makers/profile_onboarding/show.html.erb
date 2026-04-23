@@ -1,0 +1,202 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Maker onboarding" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Maker Setup",
+  title: "Complete Your Maker Onboarding",
+  description: "After verification, complete your legal, profile, and policy setup to launch your shop.",
+  actions: [{ label: "Open dashboard", path: dashboard_index_path, style: :secondary }] %>
+
+<section class="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+  <article class="form-card">
+    <%= render "shared/form_error_summary", record: @maker_onboarding_profile %>
+
+    <%= form_with model: @maker_onboarding_profile, url: makers_profile_onboarding_path, class: "grid gap-6", data: { controller: "form-state" } do |f| %>
+      <section class="grid gap-4 md:grid-cols-2">
+        <h2 class="md:col-span-2 text-xl font-bold text-[#0D0D0D]">Legal & Shop Setup</h2>
+
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_legal_first_name">Legal first name <span class="field-meta">Required</span></label>
+          <%= f.text_field :legal_first_name, class: "input input-bordered mt-1 w-full", required: true %>
+          <%= inline_field_error(@maker_onboarding_profile, :legal_first_name) %>
+        </div>
+
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_legal_last_name">Legal last name <span class="field-meta">Required</span></label>
+          <%= f.text_field :legal_last_name, class: "input input-bordered mt-1 w-full", required: true %>
+          <%= inline_field_error(@maker_onboarding_profile, :legal_last_name) %>
+        </div>
+
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_legal_business_name">Legal business name <span class="field-meta">Required</span></label>
+          <%= f.text_field :legal_business_name, class: "input input-bordered mt-1 w-full", required: true %>
+          <%= inline_field_error(@maker_onboarding_profile, :legal_business_name) %>
+        </div>
+
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_tax_identifier">EIN or SSN <span class="field-meta">Required (private)</span></label>
+          <%= f.text_field :tax_identifier, class: "input input-bordered mt-1 w-full", required: true, autocomplete: "off" %>
+          <p class="field-hint">This is only used for compliance and is never shown to customers.</p>
+          <%= inline_field_error(@maker_onboarding_profile, :tax_identifier) %>
+        </div>
+
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_dba_business_name">DBA business name / Shop name <span class="field-meta">Required</span></label>
+          <%= f.text_field :dba_business_name, class: "input input-bordered mt-1 w-full", required: true %>
+          <%= inline_field_error(@maker_onboarding_profile, :dba_business_name) %>
+        </div>
+
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_username">Username <span class="field-meta">Required & unique</span></label>
+          <%= f.text_field :username, class: "input input-bordered mt-1 w-full", required: true %>
+          <p class="field-hint">Used in your public shop URL.</p>
+          <%= inline_field_error(@maker_onboarding_profile, :username) %>
+        </div>
+
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_year_started">Year started <span class="field-meta">Optional</span></label>
+          <%= f.text_field :year_started, class: "input input-bordered mt-1 w-full", placeholder: "Example: 2018" %>
+          <%= inline_field_error(@maker_onboarding_profile, :year_started) %>
+        </div>
+
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_main_product_category">Main product category <span class="field-meta">Required</span></label>
+          <%= f.select :main_product_category,
+            options_for_select(MakerOnboardingProfile::MAIN_PRODUCT_CATEGORIES, @maker_onboarding_profile.main_product_category),
+            { include_blank: "Select category" },
+            class: "select select-bordered mt-1 w-full",
+            required: true %>
+          <%= inline_field_error(@maker_onboarding_profile, :main_product_category) %>
+        </div>
+      </section>
+
+      <section class="grid gap-4">
+        <h2 class="text-xl font-bold text-[#0D0D0D]">Meet The Maker (Customer-facing)</h2>
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_what_do_you_make_and_started">What do you make, and how did you get started? <span class="field-meta">Optional</span></label>
+          <%= f.text_area :what_do_you_make_and_started, class: "textarea textarea-bordered mt-1 h-24 w-full" %>
+        </div>
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_what_inspires_your_work">What inspires your work? <span class="field-meta">Optional</span></label>
+          <%= f.text_area :what_inspires_your_work, class: "textarea textarea-bordered mt-1 h-24 w-full" %>
+        </div>
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_favorite_part_of_process">What's your favorite part of your process and why? <span class="field-meta">Optional</span></label>
+          <%= f.text_area :favorite_part_of_process, class: "textarea textarea-bordered mt-1 h-24 w-full" %>
+        </div>
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_favorite_product_to_make">What's your favorite product to make and why? <span class="field-meta">Optional</span></label>
+          <%= f.text_area :favorite_product_to_make, class: "textarea textarea-bordered mt-1 h-24 w-full" %>
+        </div>
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_what_you_listen_to">What do you listen to while you work? <span class="field-meta">Optional</span></label>
+          <%= f.text_area :what_you_listen_to, class: "textarea textarea-bordered mt-1 h-24 w-full" %>
+        </div>
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_what_makes_work_different">What makes your work different? <span class="field-meta">Optional</span></label>
+          <%= f.text_area :what_makes_work_different, class: "textarea textarea-bordered mt-1 h-24 w-full" %>
+        </div>
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_time_to_create_one_piece">How long does it typically take to create one piece? <span class="field-meta">Optional</span></label>
+          <%= f.text_area :time_to_create_one_piece, class: "textarea textarea-bordered mt-1 h-20 w-full" %>
+        </div>
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_workspace_typical_day">What does your workspace look or feel like on a typical day? <span class="field-meta">Optional</span></label>
+          <%= f.text_area :workspace_typical_day, class: "textarea textarea-bordered mt-1 h-24 w-full" %>
+        </div>
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_what_people_should_know">What do you want people to know about your work that they might not see at first glance? <span class="field-meta">Optional</span></label>
+          <%= f.text_area :what_people_should_know, class: "textarea textarea-bordered mt-1 h-24 w-full" %>
+        </div>
+        <div>
+          <label class="field-label" for="maker_onboarding_profile_what_to_watch_in_process">If someone could watch one part of your process, what should they see? <span class="field-meta">Optional</span></label>
+          <%= f.text_area :what_to_watch_in_process, class: "textarea textarea-bordered mt-1 h-24 w-full" %>
+        </div>
+      </section>
+
+      <section class="grid gap-4 md:grid-cols-2">
+        <h2 class="md:col-span-2 text-xl font-bold text-[#0D0D0D]">Policies</h2>
+
+        <div class="md:col-span-2">
+          <label class="field-label" for="maker_onboarding_profile_lead_time_for_fulfillment">Typical lead times for order fulfillment <span class="field-meta">Required</span></label>
+          <%= f.select :lead_time_for_fulfillment,
+            options_for_select(MakerOnboardingProfile::LEAD_TIME_OPTIONS, @maker_onboarding_profile.lead_time_for_fulfillment),
+            { include_blank: "Select lead time" },
+            class: "select select-bordered mt-1 w-full",
+            required: true %>
+          <%= inline_field_error(@maker_onboarding_profile, :lead_time_for_fulfillment) %>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="field-label" for="maker_onboarding_profile_shipping_policy">Shipping policy <span class="field-meta">Required</span></label>
+          <%= f.text_area :shipping_policy, class: "textarea textarea-bordered mt-1 h-24 w-full", required: true %>
+          <%= inline_field_error(@maker_onboarding_profile, :shipping_policy) %>
+        </div>
+
+        <div>
+          <label class="field-label">Returns accepted <span class="field-meta">Required</span></label>
+          <%= f.select :returns_accepted, options_for_select([["Yes", true], ["No", false]], @maker_onboarding_profile.returns_accepted), {}, class: "select select-bordered mt-1 w-full", required: true %>
+        </div>
+        <div>
+          <label class="field-label">Exchanges accepted <span class="field-meta">Required</span></label>
+          <%= f.select :exchanges_accepted, options_for_select([["Yes", true], ["No", false]], @maker_onboarding_profile.exchanges_accepted), {}, class: "select select-bordered mt-1 w-full", required: true %>
+        </div>
+        <div>
+          <label class="field-label">Refunds accepted <span class="field-meta">Required</span></label>
+          <%= f.select :refunds_accepted, options_for_select([["Yes", true], ["No", false]], @maker_onboarding_profile.refunds_accepted), {}, class: "select select-bordered mt-1 w-full", required: true %>
+        </div>
+        <div>
+          <label class="field-label">Cancellations accepted <span class="field-meta">Required</span></label>
+          <%= f.select :cancellations_accepted, options_for_select([["Yes", true], ["No", false]], @maker_onboarding_profile.cancellations_accepted), {}, class: "select select-bordered mt-1 w-full", required: true %>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="field-label" for="maker_onboarding_profile_additional_policy_information">Additional policy information <span class="field-meta">Conditionally required</span></label>
+          <%= f.text_area :additional_policy_information, class: "textarea textarea-bordered mt-1 h-24 w-full", placeholder: "Required when returns, exchanges, or refunds are accepted." %>
+          <%= inline_field_error(@maker_onboarding_profile, :additional_policy_information) %>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="field-label" for="maker_onboarding_profile_cancellation_timeframe">Cancellation timeframe (if cancellations accepted)</label>
+          <%= f.text_area :cancellation_timeframe, class: "textarea textarea-bordered mt-1 h-20 w-full", placeholder: "Example: cancellations allowed within 12 hours of purchase." %>
+          <%= inline_field_error(@maker_onboarding_profile, :cancellation_timeframe) %>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="field-label" for="maker_onboarding_profile_privacy_policy">Privacy policy <span class="field-meta">Required</span></label>
+          <%= f.text_area :privacy_policy, class: "textarea textarea-bordered mt-1 h-28 w-full", required: true %>
+          <%= inline_field_error(@maker_onboarding_profile, :privacy_policy) %>
+        </div>
+
+        <div class="md:col-span-2">
+          <label class="field-label" for="maker_onboarding_profile_maker_faq">Maker supplied FAQ <span class="field-meta">Optional</span></label>
+          <%= f.text_area :maker_faq, class: "textarea textarea-bordered mt-1 h-24 w-full" %>
+        </div>
+      </section>
+
+      <div class="mt-2 flex flex-wrap gap-2">
+        <%= f.submit "Save onboarding profile", class: quick_action_classes(:primary), data: { form_state_target: "submit" } %>
+        <%= link_to "Cancel", dashboard_index_path, class: quick_action_classes(:secondary) %>
+      </div>
+    <% end %>
+  </article>
+
+  <aside class="surface-panel p-5">
+    <h2 class="text-lg font-bold">Launch Checklist</h2>
+    <ol class="mt-3 space-y-2 text-sm text-[#4A4A42]">
+      <li>1. Complete legal and shop identity fields.</li>
+      <li>2. Add your public maker story and category.</li>
+      <li>3. Define shipping, returns, refunds, cancellations, and privacy policies.</li>
+      <li>4. Save to generate your shop username and public profile URL.</li>
+    </ol>
+
+    <% if @maker_onboarding_profile&.username.present? %>
+      <div class="mt-4">
+        <%= link_to "Preview public profile", makers_public_profile_path(username: @maker_onboarding_profile.username), class: quick_action_classes(:secondary) %>
+      </div>
+    <% end %>
+  </aside>
+</section>
+

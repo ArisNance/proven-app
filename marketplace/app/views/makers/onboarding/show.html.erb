@@ -1,110 +1,101 @@
 <%= render "shared/breadcrumbs", items: [
   { label: "Home", path: root_path },
-  { label: "Maker onboarding" }
+  { label: "Sell on Proven" }
 ] %>
 
 <%= render "shared/page_header",
-  eyebrow: "Maker Setup",
-  title: "Complete Your Maker Profile",
-  description: "This profile is used for shop trust signals, reviewer context, and Stripe payout onboarding.",
-  actions: [{ label: "View shops", path: makers_shops_path, style: :secondary }] %>
+  eyebrow: "Maker Application",
+  title: "Apply to Sell on Proven",
+  description: "Every new seller starts as a buyer, then applies for maker verification before opening a shop.",
+  actions: [{ label: "Back to dashboard", path: dashboard_index_path, style: :secondary }] %>
 
-<section class="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
+<section class="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
   <article class="form-card">
-    <%= render "shared/form_error_summary", record: @maker_profile %>
+    <%= render "shared/form_error_summary", record: @maker_application %>
 
-    <%= form_with model: @maker_profile, url: makers_onboarding_path, class: "grid gap-4 md:grid-cols-2", data: { controller: "form-state" } do |f| %>
+    <%= form_with model: @maker_application, url: makers_onboarding_path, class: "grid gap-4 md:grid-cols-2", data: { controller: "form-state" } do |f| %>
       <div>
-        <label class="field-label" for="maker_profile_display_name">Display name <span class="field-meta">Required</span></label>
-        <%= f.text_field :display_name,
-          class: "input input-bordered mt-1 w-full",
-          required: true,
-          autocomplete: "name",
-          aria: { describedby: "display_name_hint maker_profile_display_name_error" } %>
-        <p class="field-hint" id="display_name_hint">The public name buyers see across listings and messages.</p>
-        <%= inline_field_error(@maker_profile, :display_name) %>
+        <label class="field-label" for="maker_application_first_name">Maker first name <span class="field-meta">Required</span></label>
+        <%= f.text_field :first_name, class: "input input-bordered mt-1 w-full", required: true, autocomplete: "given-name" %>
+        <%= inline_field_error(@maker_application, :first_name) %>
       </div>
 
       <div>
-        <label class="field-label" for="maker_profile_country">Country <span class="field-meta">Required</span></label>
-        <%= f.text_field :country,
-          class: "input input-bordered mt-1 w-full",
-          required: true,
-          list: "maker-country-options",
-          autocomplete: "country-name",
-          aria: { describedby: "country_hint maker_profile_country_error" } %>
-        <datalist id="maker-country-options">
-          <% if defined?(Spree::Country) %>
-            <% Spree::Country.order(:name).pluck(:name).each do |country_name| %>
-              <option value="<%= country_name %>"></option>
-            <% end %>
-          <% end %>
-        </datalist>
-        <p class="field-hint" id="country_hint">Used for compliance checks and buyer expectations.</p>
-        <%= inline_field_error(@maker_profile, :country) %>
+        <label class="field-label" for="maker_application_last_name">Maker last name <span class="field-meta">Required</span></label>
+        <%= f.text_field :last_name, class: "input input-bordered mt-1 w-full", required: true, autocomplete: "family-name" %>
+        <%= inline_field_error(@maker_application, :last_name) %>
+      </div>
+
+      <div>
+        <label class="field-label" for="maker_application_email">Email address <span class="field-meta">Required</span></label>
+        <%= f.email_field :email, class: "input input-bordered mt-1 w-full", required: true, autocomplete: "email" %>
+        <%= inline_field_error(@maker_application, :email) %>
+      </div>
+
+      <div>
+        <label class="field-label" for="maker_application_business_name">Business name <span class="field-meta">Required</span></label>
+        <%= f.text_field :business_name, class: "input input-bordered mt-1 w-full", required: true %>
+        <%= inline_field_error(@maker_application, :business_name) %>
       </div>
 
       <div class="md:col-span-2">
-        <label class="field-label" for="maker_profile_bio">Bio <span class="field-meta">Optional</span></label>
-        <%= f.text_area :bio,
-          class: "textarea textarea-bordered mt-1 h-28 w-full",
-          placeholder: "Tell buyers what you make and why.",
-          aria: { describedby: "bio_hint maker_profile_bio_error" } %>
-        <p class="field-hint" id="bio_hint">A short origin story improves shop trust and conversion.</p>
-        <%= inline_field_error(@maker_profile, :bio) %>
+        <label class="field-label" for="maker_application_business_url">Business URL <span class="field-meta">Required</span></label>
+        <%= f.url_field :business_url, class: "input input-bordered mt-1 w-full", required: true, placeholder: "https://your-site-or-social-link.com" %>
+        <p class="field-hint">Use your website or a social profile URL.</p>
+        <%= inline_field_error(@maker_application, :business_url) %>
       </div>
 
-      <div>
-        <label class="field-label" for="maker_profile_preferred_currency">Preferred currency <span class="field-meta">Required</span></label>
-        <%= f.text_field :preferred_currency,
-          class: "input input-bordered mt-1 w-full",
-          required: true,
-          list: "maker-currency-options",
-          maxlength: 3,
-          pattern: "[A-Za-z]{3}",
-          placeholder: "USD",
-          title: "Enter a 3-letter currency code (example: USD)",
-          aria: { describedby: "currency_hint maker_profile_preferred_currency_error" } %>
-        <datalist id="maker-currency-options">
-          <% if defined?(Money::Currency) %>
-            <% Money::Currency.table.keys.map(&:to_s).map(&:upcase).sort.each do |currency_code| %>
-              <option value="<%= currency_code %>"></option>
-            <% end %>
-          <% end %>
-        </datalist>
-        <p class="field-hint" id="currency_hint">Used for listing fee billing and payout defaults.</p>
-        <%= inline_field_error(@maker_profile, :preferred_currency) %>
+      <div class="md:col-span-2">
+        <label class="field-label" for="maker_application_what_do_you_make">What do you make? <span class="field-meta">Required</span></label>
+        <%= f.text_field :what_do_you_make, class: "input input-bordered mt-1 w-full", required: true, maxlength: 160, placeholder: "Short answer (example: hand-thrown ceramics and mugs)." %>
+        <%= inline_field_error(@maker_application, :what_do_you_make) %>
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="field-label" for="maker_application_how_long_making">How long have you been making this? <span class="field-meta">Optional</span></label>
+        <%= f.select :how_long_making,
+          options_for_select(MakerApplication::HOW_LONG_OPTIONS, @maker_application.how_long_making),
+          { include_blank: "Select one" },
+          class: "select select-bordered mt-1 w-full" %>
+        <%= inline_field_error(@maker_application, :how_long_making) %>
       </div>
 
       <div class="md:col-span-2 mt-2 flex flex-wrap gap-2">
-        <%= f.submit "Save and continue", class: quick_action_classes(:primary), data: { form_state_target: "submit" } %>
+        <%= f.submit "Submit maker application", class: quick_action_classes(:primary), data: { form_state_target: "submit" } %>
         <%= link_to "Cancel", dashboard_index_path, class: quick_action_classes(:secondary) %>
       </div>
     <% end %>
   </article>
 
-  <aside class="surface-panel p-5">
-    <h2 class="text-lg font-bold">Onboarding Progress</h2>
-    <ol class="mt-4 space-y-3 text-sm text-slate-600">
-      <li class="rounded-xl border border-slate-200 p-3">
-        <p class="font-semibold text-slate-900">1. Profile details</p>
-        <p>Complete public identity and shop context.</p>
-      </li>
-      <li class="rounded-xl border border-slate-200 p-3">
-        <p class="font-semibold text-slate-900">2. Payout setup</p>
-        <p>Connect Stripe Express so payouts can be routed securely.</p>
-        <% if @stripe_onboarding_url.present? %>
-          <div class="mt-2">
-            <%= link_to "Continue Stripe onboarding", @stripe_onboarding_url, class: quick_action_classes(:secondary), target: "_blank", rel: "noreferrer" %>
-          </div>
-        <% else %>
-          <p class="mt-2 text-xs text-slate-500">Stripe link appears after your profile is saved and Stripe keys are configured.</p>
+  <aside class="space-y-4">
+    <section class="surface-panel p-5">
+      <h2 class="text-lg font-bold">Application Status</h2>
+      <% if @maker_application.persisted? %>
+        <p class="mt-3 text-sm text-[#4A4A42]">
+          Current status:
+          <span class="<%= status_pill_class(@maker_application.state) %>"><%= @maker_application.state.humanize %></span>
+        </p>
+        <% if @maker_application.submitted_at.present? %>
+          <p class="mt-2 text-xs text-[#8A8A80]">Submitted <%= time_ago_in_words(@maker_application.submitted_at) %> ago</p>
         <% end %>
-      </li>
-      <li class="rounded-xl border border-slate-200 p-3">
-        <p class="font-semibold text-slate-900">3. Submit your shop</p>
-        <p>Create a shop and send it for approval review.</p>
-      </li>
-    </ol>
+        <% if @maker_application.accepted? %>
+          <div class="mt-4">
+            <%= link_to "Continue to maker onboarding", makers_profile_onboarding_path, class: quick_action_classes(:primary) %>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="mt-3 text-sm text-[#4A4A42]">No submission yet. Complete the form to enter admin verification.</p>
+      <% end %>
+    </section>
+
+    <section class="surface-panel p-5">
+      <h2 class="text-lg font-bold">What happens next</h2>
+      <ol class="mt-3 space-y-2 text-sm text-[#4A4A42]">
+        <li>1. Admin reviews your application and verification evidence.</li>
+        <li>2. Accepted makers complete legal/business onboarding and shop policy setup.</li>
+        <li>3. Your shop profile goes live with your public maker story.</li>
+      </ol>
+    </section>
   </aside>
 </section>
+

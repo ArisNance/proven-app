@@ -1,0 +1,32 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Checkout", path: checkout_success_path },
+  { label: "Success" }
+] %>
+
+<section class="surface-panel p-6 md:p-8">
+  <p class="eyebrow">Order Received</p>
+  <h1 class="page-title mt-2">Payment completed in Stripe test mode.</h1>
+  <p class="page-subtitle mt-3">
+    Your checkout request was successfully created and completed. Once Stripe webhooks arrive, fee reconciliation and payout metadata will update in the background.
+  </p>
+
+  <div class="mt-6 rounded-2xl border border-[#E8E8E2] bg-[#FCFCFA] p-4 text-sm text-[#4A4A42]">
+    <% if @checkout_session.present? %>
+      <p><strong class="text-[#0D0D0D]">Session:</strong> <%= @checkout_session.id %></p>
+      <p class="mt-1"><strong class="text-[#0D0D0D]">Status:</strong> <%= @checkout_session.payment_status %></p>
+      <p class="mt-1"><strong class="text-[#0D0D0D]">Amount total:</strong> <%= number_to_currency(@checkout_session.amount_total.to_i / 100.0) %></p>
+    <% elsif @checkout_session_id.present? %>
+      <p><strong class="text-[#0D0D0D]">Session:</strong> <%= @checkout_session_id %></p>
+      <p class="mt-1">Stripe lookup was not available, but the success redirect completed.</p>
+    <% else %>
+      <p>No Stripe session id was returned.</p>
+    <% end %>
+  </div>
+
+  <div class="mt-6 flex flex-wrap gap-3">
+    <%= link_to "Continue shopping", products_path, class: quick_action_classes(:primary) %>
+    <%= link_to "Open dashboard", dashboard_index_path, class: quick_action_classes(:secondary) %>
+  </div>
+</section>
+

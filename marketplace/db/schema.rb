@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_07_212232) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_23_154030) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "vector"
@@ -118,6 +118,68 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_07_212232) do
     t.index ["stripe_subscription_id"], name: "index_listing_fee_subscriptions_on_stripe_subscription_id", unique: true
   end
 
+  create_table "maker_applications", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "reviewer_id"
+    t.integer "state", default: 0, null: false
+    t.string "first_name", null: false
+    t.string "last_name", null: false
+    t.string "email", null: false
+    t.string "business_name", null: false
+    t.string "business_url", null: false
+    t.string "what_do_you_make", null: false
+    t.string "how_long_making"
+    t.datetime "submitted_at"
+    t.datetime "reviewed_at"
+    t.text "admin_notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["reviewer_id"], name: "index_maker_applications_on_reviewer_id"
+    t.index ["state"], name: "index_maker_applications_on_state"
+    t.index ["user_id"], name: "index_maker_applications_on_user_id", unique: true
+  end
+
+  create_table "maker_onboarding_profiles", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "maker_application_id"
+    t.bigint "shop_id"
+    t.integer "state", default: 0, null: false
+    t.string "legal_first_name", null: false
+    t.string "legal_last_name", null: false
+    t.string "legal_business_name", null: false
+    t.string "tax_identifier", null: false
+    t.string "dba_business_name", null: false
+    t.string "username", null: false
+    t.string "year_started"
+    t.string "main_product_category", null: false
+    t.text "what_do_you_make_and_started"
+    t.text "what_inspires_your_work"
+    t.text "favorite_part_of_process"
+    t.text "favorite_product_to_make"
+    t.text "what_you_listen_to"
+    t.text "what_makes_work_different"
+    t.text "time_to_create_one_piece"
+    t.text "workspace_typical_day"
+    t.text "what_people_should_know"
+    t.text "what_to_watch_in_process"
+    t.string "lead_time_for_fulfillment", null: false
+    t.text "shipping_policy", null: false
+    t.boolean "returns_accepted", null: false
+    t.boolean "exchanges_accepted", null: false
+    t.boolean "refunds_accepted", null: false
+    t.text "additional_policy_information"
+    t.boolean "cancellations_accepted", null: false
+    t.text "cancellation_timeframe"
+    t.text "privacy_policy", null: false
+    t.text "maker_faq"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["maker_application_id"], name: "index_maker_onboarding_profiles_on_maker_application_id"
+    t.index ["shop_id"], name: "index_maker_onboarding_profiles_on_shop_id"
+    t.index ["user_id"], name: "index_maker_onboarding_profiles_on_user_id", unique: true
+    t.index ["username"], name: "index_maker_onboarding_profiles_on_username", unique: true
+  end
+
   create_table "maker_profiles", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "display_name", null: false
@@ -128,6 +190,47 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_07_212232) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_maker_profiles_on_user_id", unique: true
+  end
+
+  create_table "maker_verifications", force: :cascade do |t|
+    t.bigint "maker_application_id", null: false
+    t.bigint "verified_by_id"
+    t.integer "identity_status", default: 0, null: false
+    t.integer "workspace_status", default: 0, null: false
+    t.integer "production_capability_status", default: 0, null: false
+    t.integer "product_origin_status", default: 0, null: false
+    t.string "identity_name_given"
+    t.boolean "identity_id_verified"
+    t.integer "identity_name_match_confidence"
+    t.text "identity_notes"
+    t.integer "workspace_type"
+    t.integer "workspace_confidence"
+    t.text "workspace_notes"
+    t.boolean "production_in_progress_product_seen"
+    t.boolean "production_process_explained"
+    t.boolean "production_materials_observed"
+    t.integer "production_complexity_level"
+    t.integer "production_confidence"
+    t.text "production_notes"
+    t.boolean "product_origin_matched_to_maker"
+    t.boolean "product_origin_categories_verified"
+    t.boolean "product_origin_inconsistencies_flagged"
+    t.integer "product_origin_confidence"
+    t.text "product_origin_notes"
+    t.boolean "red_flag_stock_like_imagery", default: false, null: false
+    t.boolean "red_flag_inconsistent_story", default: false, null: false
+    t.boolean "red_flag_no_in_progress_proof", default: false, null: false
+    t.boolean "red_flag_unclear_production_chain", default: false, null: false
+    t.integer "maker_type_classification"
+    t.integer "overall_confidence_score"
+    t.integer "verification_method"
+    t.integer "verification_duration_minutes"
+    t.datetime "verified_on"
+    t.text "reviewer_notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["maker_application_id"], name: "index_maker_verifications_on_maker_application_id", unique: true
+    t.index ["verified_by_id"], name: "index_maker_verifications_on_verified_by_id"
   end
 
   create_table "messages", force: :cascade do |t|
@@ -176,6 +279,22 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_07_212232) do
     t.index ["shop_id"], name: "index_shop_approvals_on_shop_id"
   end
 
+  create_table "shopify_connections", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "shop_domain", null: false
+    t.text "access_token", null: false
+    t.string "scopes", default: "", null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "installed_at"
+    t.datetime "last_synced_at"
+    t.string "last_sync_status"
+    t.text "last_sync_error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shop_domain"], name: "index_shopify_connections_on_shop_domain", unique: true
+    t.index ["user_id"], name: "index_shopify_connections_on_user_id"
+  end
+
   create_table "shops", force: :cascade do |t|
     t.bigint "maker_id", null: false
     t.string "name", null: false
@@ -184,7 +303,9 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_07_212232) do
     t.string "stripe_customer_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "username"
     t.index ["maker_id"], name: "index_shops_on_maker_id"
+    t.index ["username"], name: "index_shops_on_username", unique: true
   end
 
   create_table "spree_addresses", force: :cascade do |t|
@@ -1724,6 +1845,11 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_07_212232) do
     t.jsonb "payload", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "event_type"
+    t.datetime "processed_at"
+    t.text "processing_error"
+    t.index ["event_type"], name: "index_webhook_events_on_event_type"
+    t.index ["processed_at"], name: "index_webhook_events_on_processed_at"
     t.index ["provider", "event_id"], name: "index_webhook_events_on_provider_and_event_id", unique: true
   end
 
@@ -1733,13 +1859,21 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_07_212232) do
   add_foreign_key "conversations", "users", column: "buyer_id"
   add_foreign_key "conversations", "users", column: "maker_id"
   add_foreign_key "listing_fee_subscriptions", "shops"
+  add_foreign_key "maker_applications", "users"
+  add_foreign_key "maker_applications", "users", column: "reviewer_id"
+  add_foreign_key "maker_onboarding_profiles", "maker_applications"
+  add_foreign_key "maker_onboarding_profiles", "shops"
+  add_foreign_key "maker_onboarding_profiles", "users"
   add_foreign_key "maker_profiles", "users"
+  add_foreign_key "maker_verifications", "maker_applications"
+  add_foreign_key "maker_verifications", "users", column: "verified_by_id"
   add_foreign_key "messages", "conversations"
   add_foreign_key "messages", "users", column: "sender_id"
   add_foreign_key "product_approvals", "users", column: "reviewer_id"
   add_foreign_key "recommendation_caches", "users", column: "buyer_id"
   add_foreign_key "shop_approvals", "shops"
   add_foreign_key "shop_approvals", "users", column: "reviewer_id"
+  add_foreign_key "shopify_connections", "users"
   add_foreign_key "shops", "users", column: "maker_id"
   add_foreign_key "spree_oauth_access_grants", "spree_oauth_applications", column: "application_id"
   add_foreign_key "spree_oauth_access_tokens", "spree_oauth_applications", column: "application_id"

@@ -41,6 +41,7 @@ class ProductsController < ApplicationController
       @related_products = Storefront::Catalog.all.select { |item| item.category == @product.category && item.slug != @product.slug }.first(4)
       @maker_shop = Shop.find_by(id: @product.source_shop_id)
       @maker_profile = @maker_shop&.maker&.maker_profile
+      @maker_onboarding_profile = @maker_shop&.maker&.maker_onboarding_profile
       return
     end
 

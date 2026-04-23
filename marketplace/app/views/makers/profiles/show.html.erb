@@ -1,0 +1,101 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Shop", path: products_path },
+  { label: @maker_onboarding_profile.dba_business_name }
+] %>
+
+<section class="surface-panel p-6 md:p-8">
+  <div class="flex flex-wrap items-start justify-between gap-4">
+    <div>
+      <p class="eyebrow">Meet The Maker</p>
+      <h1 class="page-title mt-2"><%= @maker_onboarding_profile.dba_business_name %></h1>
+      <p class="mt-2 text-sm text-[#4A4A42]">
+        by <strong><%= [@maker_onboarding_profile.legal_first_name, @maker_onboarding_profile.legal_last_name].join(" ") %></strong>
+        <% if @maker_onboarding_profile.year_started.present? %>
+          • started <%= @maker_onboarding_profile.year_started %>
+        <% end %>
+      </p>
+      <p class="mt-2 text-sm text-[#4A4A42]">Main category: <strong><%= @maker_onboarding_profile.main_product_category %></strong></p>
+    </div>
+    <div class="flex gap-2">
+      <%= link_to "Browse marketplace", products_path, class: quick_action_classes(:secondary) %>
+      <% if user_signed_in? %>
+        <%= link_to "Message maker", conversations_path(maker_id: @maker_onboarding_profile.user_id), data: { turbo_method: :post }, class: quick_action_classes(:primary) %>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @maker_onboarding_profile.what_do_you_make_and_started.present? %>
+    <section class="mt-6 rounded-2xl border border-[#E8E8E2] p-4">
+      <h2 class="text-lg font-bold text-[#0D0D0D]">What they make</h2>
+      <p class="mt-2 whitespace-pre-line text-sm text-[#4A4A42]"><%= @maker_onboarding_profile.what_do_you_make_and_started %></p>
+    </section>
+  <% end %>
+
+  <section class="mt-6 grid gap-4 md:grid-cols-2">
+    <% {
+      "What inspires the work" => @maker_onboarding_profile.what_inspires_your_work,
+      "Favorite part of the process" => @maker_onboarding_profile.favorite_part_of_process,
+      "Favorite product to make" => @maker_onboarding_profile.favorite_product_to_make,
+      "What they listen to while working" => @maker_onboarding_profile.what_you_listen_to,
+      "What makes the work different" => @maker_onboarding_profile.what_makes_work_different,
+      "Typical creation time" => @maker_onboarding_profile.time_to_create_one_piece,
+      "Workspace on a typical day" => @maker_onboarding_profile.workspace_typical_day,
+      "What buyers should know" => @maker_onboarding_profile.what_people_should_know,
+      "What to watch in their process" => @maker_onboarding_profile.what_to_watch_in_process
+    }.each do |label, value| %>
+      <% next if value.blank? %>
+      <article class="rounded-2xl border border-[#E8E8E2] p-4">
+        <h3 class="text-sm font-semibold uppercase tracking-[0.08em] text-[#8A8A80]"><%= label %></h3>
+        <p class="mt-2 whitespace-pre-line text-sm text-[#4A4A42]"><%= value %></p>
+      </article>
+    <% end %>
+  </section>
+</section>
+
+<section class="mt-6 grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+  <article class="surface-panel p-5">
+    <h2 class="text-xl font-bold text-[#0D0D0D]">Shop Policies</h2>
+    <div class="mt-4 space-y-3 text-sm text-[#4A4A42]">
+      <p><strong class="text-[#0D0D0D]">Lead time:</strong> <%= @maker_onboarding_profile.lead_time_for_fulfillment %></p>
+      <p><strong class="text-[#0D0D0D]">Shipping policy:</strong><br><%= simple_format(@maker_onboarding_profile.shipping_policy) %></p>
+      <p><strong class="text-[#0D0D0D]">Returns accepted:</strong> <%= @maker_onboarding_profile.returns_accepted ? "Yes" : "No" %></p>
+      <p><strong class="text-[#0D0D0D]">Exchanges accepted:</strong> <%= @maker_onboarding_profile.exchanges_accepted ? "Yes" : "No" %></p>
+      <p><strong class="text-[#0D0D0D]">Refunds accepted:</strong> <%= @maker_onboarding_profile.refunds_accepted ? "Yes" : "No" %></p>
+      <p><strong class="text-[#0D0D0D]">Cancellations accepted:</strong> <%= @maker_onboarding_profile.cancellations_accepted ? "Yes" : "No" %></p>
+      <% if @maker_onboarding_profile.additional_policy_information.present? %>
+        <p><strong class="text-[#0D0D0D]">Additional policy details:</strong><br><%= simple_format(@maker_onboarding_profile.additional_policy_information) %></p>
+      <% end %>
+      <% if @maker_onboarding_profile.cancellation_timeframe.present? %>
+        <p><strong class="text-[#0D0D0D]">Cancellation timeframe:</strong><br><%= simple_format(@maker_onboarding_profile.cancellation_timeframe) %></p>
+      <% end %>
+      <p><strong class="text-[#0D0D0D]">Privacy policy:</strong><br><%= simple_format(@maker_onboarding_profile.privacy_policy) %></p>
+      <% if @maker_onboarding_profile.maker_faq.present? %>
+        <p><strong class="text-[#0D0D0D]">FAQ:</strong><br><%= simple_format(@maker_onboarding_profile.maker_faq) %></p>
+      <% end %>
+    </div>
+  </article>
+
+  <article class="surface-panel p-5">
+    <h2 class="text-xl font-bold text-[#0D0D0D]">From This Maker</h2>
+    <% if @products.any? %>
+      <div class="mt-4 space-y-3">
+        <% @products.each do |product| %>
+          <%= link_to product_path(product.slug), class: "flex items-center gap-3 rounded-2xl border border-[#E8E8E2] p-3 transition hover:border-[#0D0D0D]" do %>
+            <% if product.image_url.present? %>
+              <img src="<%= product.image_url %>" alt="<%= product.name %>" class="h-14 w-14 rounded-xl object-cover">
+            <% else %>
+              <div class="grid h-14 w-14 place-items-center rounded-xl bg-[#F4F4F0] text-xs text-[#8A8A80]">No image</div>
+            <% end %>
+            <div>
+              <p class="font-semibold text-[#0D0D0D]"><%= product.name %></p>
+              <p class="text-sm text-[#4A4A42]"><%= number_to_currency(product.price_cents.to_f / 100) %></p>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <%= render "shared/empty_state", title: "No listings yet", description: "This maker is still preparing their first listings." %>
+    <% end %>
+  </article>
+</section>

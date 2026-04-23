@@ -96,20 +96,19 @@
           </div>
         <% end %>
 
-        <div class="mt-5">
+        <%= form_with url: checkout_create_path(@product.slug.presence || @product.id), method: :post, local: true, data: { turbo: false }, class: "mt-5" do |form| %>
           <label class="field-label" for="listing_quantity">Quantity</label>
-          <select id="listing_quantity" class="select select-bordered mt-2 w-full rounded-2xl border-[#CCCCC4] bg-white">
-            <option>1</option>
-            <option>2</option>
-            <option>3</option>
-            <option>4</option>
-          </select>
-        </div>
+          <%= form.select :quantity,
+            options_for_select((1..4).map { |qty| [qty, qty] }),
+            {},
+            id: "listing_quantity",
+            class: "select select-bordered mt-2 w-full rounded-2xl border-[#CCCCC4] bg-white" %>
 
-        <div class="mt-6 grid gap-3 sm:grid-cols-2">
-          <button class="inline-flex items-center justify-center rounded-full bg-[#D4F93D] px-6 py-3 text-sm font-bold text-black hover:bg-[#B8DC28]" type="button">Add to bag</button>
-          <button class="inline-flex items-center justify-center rounded-full border border-[#0D0D0D] px-6 py-3 text-sm font-semibold text-[#0D0D0D] hover:bg-[#0D0D0D] hover:text-white" type="button">Buy it now</button>
-        </div>
+          <div class="mt-6 grid gap-3 sm:grid-cols-2">
+            <%= form.submit "Add to bag", class: "inline-flex items-center justify-center rounded-full bg-[#D4F93D] px-6 py-3 text-sm font-bold text-black hover:bg-[#B8DC28]" %>
+            <%= form.submit "Buy it now", class: "inline-flex items-center justify-center rounded-full border border-[#0D0D0D] px-6 py-3 text-sm font-semibold text-[#0D0D0D] hover:bg-[#0D0D0D] hover:text-white" %>
+          </div>
+        <% end %>
 
         <div class="mt-5 rounded-2xl bg-[#F8F8F5] p-4">
           <p class="text-sm font-semibold text-[#0D0D0D]">Arrives <%= delivery_start %> - <%= delivery_end %></p>
@@ -181,7 +180,16 @@
             <p class="mt-1 text-sm text-[#4A4A42]"><strong><%= maker_name %></strong> · <%= maker_shop_name %></p>
             <p class="mt-2 text-sm text-[#4A4A42]"><%= truncate(maker_bio, length: 170) %></p>
             <div class="mt-4 flex flex-wrap gap-3">
-              <%= link_to(user_signed_in? ? "Message seller" : "Sign in to message", user_signed_in? ? conversations_path : new_user_session_path, class: quick_action_classes(:secondary)) %>
+              <% if user_signed_in? && @maker_shop&.maker_id.present? %>
+                <%= link_to "Message seller", conversations_path(maker_id: @maker_shop&.maker_id), data: { turbo_method: :post }, class: quick_action_classes(:secondary) %>
+              <% elsif user_signed_in? %>
+                <%= link_to "Open messages", conversations_path, class: quick_action_classes(:secondary) %>
+              <% else %>
+                <%= link_to "Sign in to message", new_user_session_path, class: quick_action_classes(:secondary) %>
+              <% end %>
+              <% if @maker_onboarding_profile&.username.present? %>
+                <%= link_to "Visit maker profile", makers_public_profile_path(username: @maker_onboarding_profile.username), class: quick_action_classes(:secondary) %>
+              <% end %>
               <button type="button" class="inline-flex items-center gap-2 rounded-full border border-[#0C6B4A]/20 bg-[#E0FBF4] px-4 py-2 text-sm font-semibold text-[#0C6B4A] transition hover:bg-[#d0f5e8]" data-action="click->verification-modal#open">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5-2a9 9 0 11-18 0 9 9 0 0118 0z" />

@@ -51,8 +51,23 @@
       <p class="mt-3"><span class="status-pill bg-amber-50 text-amber-800">Action required</span></p>
       <p class="mt-2 text-sm text-slate-600">Finish maker onboarding to connect payout details.</p>
       <div class="mt-3">
-        <%= link_to "Go to onboarding", makers_onboarding_path, class: quick_action_classes(:secondary) %>
+        <%= link_to "Go to onboarding", makers_profile_onboarding_path, class: quick_action_classes(:secondary) %>
       </div>
     <% end %>
   </article>
+</section>
+
+<section class="surface-panel mt-4 p-5">
+  <h2 class="text-lg font-bold">Public Profile</h2>
+  <% if @shop.username.present? %>
+    <p class="mt-2 text-sm text-slate-600">Public URL username: <strong><%= @shop.username %></strong></p>
+    <div class="mt-3">
+      <%= link_to "View public maker profile", makers_public_profile_path(username: @shop.username), class: quick_action_classes(:secondary) %>
+    </div>
+  <% else %>
+    <p class="mt-2 text-sm text-slate-600">Set your public username in maker onboarding to enable your shareable profile URL.</p>
+    <div class="mt-3">
+      <%= link_to "Complete onboarding profile", makers_profile_onboarding_path, class: quick_action_classes(:secondary) %>
+    </div>
+  <% end %>
 </section>

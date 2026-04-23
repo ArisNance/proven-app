@@ -3,8 +3,16 @@ require "ostruct"
 
 RSpec.describe Billing::ListingFees do
   describe ".sync!" do
+    let!(:country) do
+      Spree::Country.find_or_create_by!(iso: "US") do |record|
+        record.iso3 = "USA"
+        record.iso_name = "UNITED STATES"
+        record.name = "United States"
+        record.numcode = 840
+      end
+    end
     let(:maker) { User.create!(email: "maker@example.com", password: "password123", role: :maker) }
-    let!(:maker_profile) { MakerProfile.create!(user: maker, display_name: "M", country: "US", preferred_currency: "USD") }
+    let!(:maker_profile) { MakerProfile.create!(user: maker, display_name: "M", country: country.name, preferred_currency: "USD") }
     let(:shop) { Shop.create!(maker: maker, name: "Shop", description: "Handmade goods", state: :pending) }
 
     it "returns when stripe is not configured" do
@@ -15,7 +23,7 @@ RSpec.describe Billing::ListingFees do
 
     it "creates a listing fee subscription when none exists" do
       allow(StripeConnectService).to receive(:ensure_customer_for_shop!).and_return("cus_123")
-      allow(StripeConnectService).to receive(:listing_fee_price_id!).and_return("price_123")
+      allow(StripeConnectService).to receive(:listing_fee_price_id!).with(currency: "usd", unit_amount_cents: 15).and_return("price_123")
       allow(Stripe::Subscription).to receive(:create).and_return(OpenStruct.new(id: "sub_123"))
 
       ClimateControl.modify STRIPE_SECRET_KEY: "sk_test_123" do
@@ -40,7 +48,7 @@ RSpec.describe Billing::ListingFees do
       stripe_subscription = OpenStruct.new(items: OpenStruct.new(data: [stripe_item]))
 
       allow(StripeConnectService).to receive(:ensure_customer_for_shop!).and_return("cus_123")
-      allow(StripeConnectService).to receive(:listing_fee_price_id!).and_return("price_123")
+      allow(StripeConnectService).to receive(:listing_fee_price_id!).with(currency: "usd", unit_amount_cents: 15).and_return("price_123")
       allow(Stripe::Subscription).to receive(:retrieve).with("sub_existing").and_return(stripe_subscription)
       allow(Stripe::Subscription).to receive(:update).and_return(true)
 

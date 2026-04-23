@@ -7,7 +7,11 @@
       <div class="mt-8 flex flex-wrap gap-3">
         <%= link_to "Shop collection", products_path, class: quick_action_classes(:primary) %>
         <% if user_signed_in? %>
-          <%= link_to "Open dashboard", dashboard_index_path, class: quick_action_classes(:secondary) %>
+          <% if sell_on_proven_eligible? %>
+            <%= link_to "Sell on Proven", makers_onboarding_path, class: quick_action_classes(:secondary) %>
+          <% else %>
+            <%= link_to "Open dashboard", dashboard_index_path, class: quick_action_classes(:secondary) %>
+          <% end %>
         <% else %>
           <%= link_to "Become a maker", new_user_registration_path, class: quick_action_classes(:secondary) %>
         <% end %>

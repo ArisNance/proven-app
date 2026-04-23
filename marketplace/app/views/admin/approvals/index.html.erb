@@ -11,6 +11,10 @@
 
 <section class="info-grid">
   <article class="metric-tile">
+    <p class="metric-label">Makers pending</p>
+    <p class="metric-value"><%= @maker_applications.count %></p>
+  </article>
+  <article class="metric-tile">
     <p class="metric-label">Shops pending</p>
     <p class="metric-value"><%= @shop_approvals.count %></p>
   </article>
@@ -30,7 +34,32 @@
 
 <section class="mt-4 grid gap-4 lg:grid-cols-3">
   <article class="surface-panel p-5 lg:col-span-2">
-    <h2 class="text-xl font-bold">Shop Approval Queue</h2>
+    <h2 class="text-xl font-bold">Maker Verification Queue</h2>
+    <% if @maker_applications.any? %>
+      <div class="mt-4 space-y-3">
+        <% @maker_applications.first(8).each do |application| %>
+          <article class="rounded-2xl border border-slate-200 p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p class="text-base font-semibold text-slate-900"><%= [application.first_name, application.last_name].join(" ") %></p>
+                <p class="text-sm text-slate-600"><%= application.business_name %></p>
+                <p class="mt-1 text-xs text-slate-500">Status: <span class="<%= status_pill_class(application.state) %>"><%= application.state.humanize %></span></p>
+              </div>
+              <div>
+                <%= link_to "Review verification", admin_maker_application_path(application), class: quick_action_classes(:secondary) %>
+              </div>
+            </div>
+          </article>
+        <% end %>
+      </div>
+      <div class="mt-4">
+        <%= link_to "Open full maker verification queue", admin_maker_applications_path, class: quick_action_classes(:primary) %>
+      </div>
+    <% else %>
+      <p class="mt-2 text-sm text-slate-600">No maker applications waiting for review.</p>
+    <% end %>
+
+    <h2 class="mt-8 text-xl font-bold">Shop Approval Queue</h2>
     <% if @shop_approvals.any? %>
       <div class="mt-4 space-y-3">
         <% @shop_approvals.each do |approval| %>

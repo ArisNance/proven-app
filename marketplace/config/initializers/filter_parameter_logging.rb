@@ -4,5 +4,8 @@ Rails.application.config.filter_parameters += [
   :token,
   :secret,
   :authorization,
-  :api_key
+  :api_key,
+  :tax_identifier,
+  :ein,
+  :ssn
 ]

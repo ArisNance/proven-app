@@ -2,7 +2,7 @@ module ApplicationHelper
   def current_role
     return :guest unless user_signed_in?
     return :admin if current_user.admin?
-    return :maker if current_user.maker?
+    return :maker if current_user.seller_account?
 
     :buyer
   end
@@ -20,7 +20,8 @@ module ApplicationHelper
     items = [{ label: "Home", path: root_path, roles: %i[guest buyer maker admin] }, { label: "Shop", path: products_path, roles: %i[guest buyer maker admin] }]
     items << { label: "Dashboard", path: dashboard_index_path, roles: %i[buyer maker admin] }
     items << { label: "Messages", path: conversations_path, roles: %i[buyer maker admin] }
-    items << { label: "Sell", path: makers_shops_path, roles: %i[maker admin] }
+    items << { label: "My Shop", path: makers_shops_path, roles: %i[maker admin] }
+    items << { label: "Sell on Proven", path: makers_onboarding_path, roles: [] } if sell_on_proven_eligible?
 
     visible_items = items.select { |item| item[:roles].include?(current_role) }
     visible_items << { label: "Admin Panel", path: admin_root_path, roles: [] } if session[:proven_admin_authenticated] == true
@@ -38,19 +39,30 @@ module ApplicationHelper
     when :maker
       [
         { label: "Create shop", path: new_makers_shop_path, style: :primary },
-        { label: "Maker onboarding", path: makers_onboarding_path, style: :secondary }
+        { label: "Maker onboarding", path: makers_profile_onboarding_path, style: :secondary }
       ]
     when :buyer
-      [
+      actions = [
         { label: "View dashboard", path: dashboard_index_path, style: :primary },
         { label: "Open messages", path: conversations_path, style: :secondary }
       ]
+      actions << { label: "Sell on Proven", path: makers_onboarding_path, style: :secondary } if sell_on_proven_eligible?
+      actions
     else
       [
         { label: "Sign in", path: new_user_session_path, style: :primary },
         { label: "Create account", path: new_user_registration_path, style: :secondary }
       ]
     end
+  end
+
+  def sell_on_proven_eligible?
+    return false unless user_signed_in?
+    return false if current_user.admin?
+    return false if current_user.seller_account?
+
+    maker_application = current_user.maker_application
+    maker_application.blank? || maker_application.rejected?
   end
 
   def nav_link_classes(active)

@@ -5,6 +5,7 @@ module Admin
       @shop_approvals = ShopApproval.pending.includes(:shop).order(created_at: :asc)
       @product_approvals = ProductApproval.pending.includes(:product).order(created_at: :asc)
       @flagged_items = FlaggedItem.open.includes(:product).order(created_at: :asc)
+      @maker_applications = MakerApplication.where(state: %i[submitted in_review]).includes(:user).order(submitted_at: :asc, created_at: :asc)
     end
 
     def approve
