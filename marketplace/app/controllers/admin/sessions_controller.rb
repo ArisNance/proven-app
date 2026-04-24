@@ -12,8 +12,11 @@ module Admin
     def create
       if params[:username].to_s == ADMIN_USERNAME && params[:password].to_s == ADMIN_PASSWORD
         session[:proven_admin_authenticated] = true
+        session[:proven_admin_seeded_login] = ADMIN_USERNAME
         redirect_to admin_root_path, notice: "Welcome to the Proven admin panel."
       else
+        session.delete(:proven_admin_authenticated)
+        session.delete(:proven_admin_seeded_login)
         flash.now[:alert] = "Invalid admin username or password."
         render :new, status: :unprocessable_entity
       end
@@ -21,6 +24,7 @@ module Admin
 
     def destroy
       session.delete(:proven_admin_authenticated)
+      session.delete(:proven_admin_seeded_login)
       redirect_to admin_login_path, notice: "You have been signed out from admin."
     end
   end

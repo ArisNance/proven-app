@@ -1,41 +1,72 @@
 module ApplicationHelper
   def current_role
-    return :guest unless user_signed_in?
-    return :admin if current_user.admin?
-    return :maker if current_user.seller_account?
+    return @current_role if defined?(@current_role)
+    return @current_role = :guest unless user_signed_in?
+    return @current_role = :maker if selected_dashboard_mode == :maker
 
-    :buyer
+    @current_role = :buyer
+  end
+
+  def selected_dashboard_mode
+    return @selected_dashboard_mode if defined?(@selected_dashboard_mode)
+    return @selected_dashboard_mode = :buyer unless user_signed_in?
+    return @selected_dashboard_mode = :buyer unless current_user.seller_account?
+
+    @selected_dashboard_mode = (session[:dashboard_mode].to_s.presence_in(%w[buyer maker]) || "maker").to_sym
+  end
+
+  def dashboard_mode_switch_enabled?
+    user_signed_in? && current_user.seller_account?
+  end
+
+  def dashboard_mode_label
+    selected_dashboard_mode == :maker ? "Maker Workspace" : "Buyer Workspace"
+  end
+
+  def dashboard_destination_path
+    dashboard_mode_switch_enabled? ? dashboard_index_path(mode: selected_dashboard_mode) : dashboard_index_path
   end
 
   def role_badge_text
     case current_role
-    when :admin then "Admin"
     when :maker then "Maker"
     when :buyer then "Buyer"
     else "Guest"
     end
   end
 
-  def primary_navigation_items
-    items = [{ label: "Home", path: root_path, roles: %i[guest buyer maker admin] }, { label: "Shop", path: products_path, roles: %i[guest buyer maker admin] }]
-    items << { label: "Dashboard", path: dashboard_index_path, roles: %i[buyer maker admin] }
-    items << { label: "Messages", path: conversations_path, roles: %i[buyer maker admin] }
-    items << { label: "My Shop", path: makers_shops_path, roles: %i[maker admin] }
-    items << { label: "Sell on Proven", path: makers_onboarding_path, roles: [] } if sell_on_proven_eligible?
+  def header_navigation_items
+    [
+      { label: "Home", path: root_path },
+      { label: "Shop", path: products_path }
+    ]
+  end
 
-    visible_items = items.select { |item| item[:roles].include?(current_role) }
-    visible_items << { label: "Admin Panel", path: admin_root_path, roles: [] } if session[:proven_admin_authenticated] == true
-    visible_items << { label: "Admin Login", path: admin_login_path, roles: [] } if current_role == :guest && session[:proven_admin_authenticated] != true
-    visible_items
+  def header_dropdown_items
+    items = []
+
+    if user_signed_in?
+      items << { label: "Dashboard", path: dashboard_destination_path }
+      items << { label: "Messages", path: conversations_path }
+      items << { label: "My Shop", path: makers_shops_path } if current_user.seller_account?
+      items << { label: "Sell on Proven", path: makers_onboarding_path } if sell_on_proven_eligible?
+    else
+      items << { label: "Sign in", path: new_user_session_path }
+      items << { label: "Join", path: new_user_registration_path }
+    end
+
+    items << { label: "Admin Panel", path: admin_root_path } if admin_session_authenticated?
+    items << { label: "Admin Login", path: admin_login_path } if !user_signed_in? && !admin_session_authenticated?
+    items
+  end
+
+  def admin_session_authenticated?
+    session[:proven_admin_authenticated] == true &&
+      session[:proven_admin_seeded_login].to_s == Admin::SessionsController::ADMIN_USERNAME
   end
 
   def role_quick_actions
     case current_role
-    when :admin
-      [
-        { label: "Review approvals", path: admin_approvals_path, style: :primary },
-        { label: "Open dashboard", path: dashboard_index_path, style: :secondary }
-      ]
     when :maker
       [
         { label: "Create shop", path: new_makers_shop_path, style: :primary },
@@ -43,7 +74,7 @@ module ApplicationHelper
       ]
     when :buyer
       actions = [
-        { label: "View dashboard", path: dashboard_index_path, style: :primary },
+        { label: "View dashboard", path: dashboard_destination_path, style: :primary },
         { label: "Open messages", path: conversations_path, style: :secondary }
       ]
       actions << { label: "Sell on Proven", path: makers_onboarding_path, style: :secondary } if sell_on_proven_eligible?

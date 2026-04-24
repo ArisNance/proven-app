@@ -16,11 +16,23 @@
         <% end %>
       </p>
       <p class="mt-2 text-sm text-[#4A4A42]">Main category: <strong><%= @maker_onboarding_profile.main_product_category %></strong></p>
+      <% if @shop.present? %>
+        <p class="mt-2 text-xs text-[#8A8A80]"><%= @shop_favorite_count %> buyer favorites</p>
+      <% end %>
     </div>
     <div class="flex gap-2">
       <%= link_to "Browse marketplace", products_path, class: quick_action_classes(:secondary) %>
       <% if user_signed_in? %>
         <%= link_to "Message maker", conversations_path(maker_id: @maker_onboarding_profile.user_id), data: { turbo_method: :post }, class: quick_action_classes(:primary) %>
+        <% if @shop.present? %>
+          <% if @favorited_shop %>
+            <%= button_to "Unsave shop", favorite_shop_path(@shop), method: :delete, class: quick_action_classes(:secondary) %>
+          <% else %>
+            <%= button_to "Favorite shop", favorite_shop_path(@shop), method: :post, class: quick_action_classes(:secondary) %>
+          <% end %>
+        <% end %>
+      <% elsif @shop.present? %>
+        <%= link_to "Sign in to favorite", new_user_session_path, class: quick_action_classes(:secondary) %>
       <% end %>
     </div>
   </div>

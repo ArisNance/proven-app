@@ -2,7 +2,11 @@ require "rails_helper"
 
 RSpec.describe "Webhook endpoints", type: :request do
   it "accepts shipstation webhook" do
-    post "/webhooks/shipstation", params: { event: "SHIP_NOTIFY" }
+    headers = {}
+    webhook_secret = ENV["SHIPSTATION_WEBHOOK_SECRET"].to_s
+    headers["X-Shipstation-Secret"] = webhook_secret if webhook_secret.present?
+
+    post "/webhooks/shipstation", params: { event: "SHIP_NOTIFY" }, headers: headers
     expect(response).to have_http_status(:accepted)
   end
 

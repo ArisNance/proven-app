@@ -20,13 +20,13 @@ class StripeConnectService
     account.id
   end
 
-  def self.onboarding_link(account_id)
+  def self.onboarding_link(account_id, refresh_path: "/makers/onboarding", return_path: "/makers/shops")
     app_host = ENV.fetch("APP_HOST", "http://localhost:3000")
 
     Stripe::AccountLink.create(
       account: account_id,
-      refresh_url: "#{app_host}/makers/onboarding",
-      return_url: "#{app_host}/makers/shops",
+      refresh_url: "#{app_host}#{refresh_path}",
+      return_url: "#{app_host}#{return_path}",
       type: "account_onboarding"
     ).url
   end

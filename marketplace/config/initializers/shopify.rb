@@ -4,6 +4,7 @@ if ENV["SHOPIFY_API_KEY"].present? && ENV["SHOPIFY_API_SECRET"].present?
     api_secret_key: ENV["SHOPIFY_API_SECRET"],
     scope: ENV.fetch("SHOPIFY_SCOPES", "read_products,write_products"),
     host_name: ENV.fetch("SHOPIFY_HOST", "localhost:3000"),
+    is_private: false,
     is_embedded: false,
     api_version: "2025-10"
   )

@@ -6,7 +6,9 @@ class DashboardController < ApplicationController
       redirect_to admin_root_path and return
     end
 
-    if current_user.seller_account?
+    persist_dashboard_mode!
+
+    if active_dashboard_mode == :maker
       load_seller_dashboard
       render :maker
     else
@@ -23,6 +25,8 @@ class DashboardController < ApplicationController
     @orders_total = @completed_orders.size
     @orders_total_spend = @completed_orders.sum { |order| order_total_cents(order) }
     @recent_messages = current_user.conversations.includes(:messages).flat_map(&:messages).sort_by(&:created_at).last(5).reverse
+    @favorite_products = favorite_products_for(current_user, limit: 12)
+    @favorite_shops = current_user.shop_favorites.includes(shop: { maker: :maker_profile }).order(created_at: :desc).limit(8).map(&:shop).compact
     @maker_application = current_user.maker_application
     @show_sell_on_proven = current_user.buyer_only? && (@maker_application.blank? || @maker_application.rejected?)
   end
@@ -45,6 +49,32 @@ class DashboardController < ApplicationController
     Spree::Order.where(user_id: user.id).order(created_at: :desc).limit(limit)
   rescue StandardError
     []
+  end
+
+  def favorite_products_for(user, limit:)
+    user.product_favorites.order(created_at: :desc).limit(limit).filter_map do |favorite|
+      product = Storefront::Catalog.find(favorite.product_slug)
+      next if product.blank?
+
+      { product: product, favorited_at: favorite.created_at }
+    end
+  rescue StandardError
+    []
+  end
+
+  def persist_dashboard_mode!
+    requested = params[:mode].to_s.presence_in(%w[buyer maker])
+    return if requested.blank?
+    return if requested == "maker" && !current_user.seller_account?
+
+    session[:dashboard_mode] = requested
+  end
+
+  def active_dashboard_mode
+    return :buyer unless current_user.seller_account?
+
+    stored = session[:dashboard_mode].to_s.presence_in(%w[buyer maker]) || "maker"
+    stored.to_sym
   end
 
   def completed_order?(order)

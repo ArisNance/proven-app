@@ -26,9 +26,9 @@
           <% end %>
         </div>
 
-        <nav aria-label="Primary" class="hidden md:block">
+        <nav aria-label="Primary">
           <ul class="flex flex-wrap items-center gap-1">
-            <% primary_navigation_items.each do |item| %>
+            <% header_navigation_items.each do |item| %>
               <li>
                 <%= link_to item[:label], item[:path], class: nav_link_classes(current_page?(item[:path])) %>
               </li>
@@ -37,17 +37,29 @@
         </nav>
 
         <div class="flex items-center gap-2">
-          <%= link_to "Shop", products_path, class: "inline-flex items-center rounded-full border border-[#CCCCC4] px-3 py-2 text-sm font-medium text-[#4A4A42] hover:border-[#0D0D0D] md:hidden" %>
-          <% if user_signed_in? %>
-            <% if sell_on_proven_eligible? %>
-              <%= link_to "Sell on Proven", makers_onboarding_path, class: "hidden md:inline-flex items-center rounded-full bg-[#D4F93D] px-3 py-2 text-sm font-semibold text-black hover:bg-[#B8DC28]" %>
-            <% end %>
-            <%= link_to "Account", dashboard_index_path, class: "inline-flex items-center rounded-full border border-[#CCCCC4] px-3 py-2 text-sm font-medium text-[#4A4A42] hover:border-[#0D0D0D]" %>
-            <%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "inline-flex items-center rounded-full border border-[#CCCCC4] px-3 py-2 text-sm font-medium text-[#4A4A42] hover:border-[#0D0D0D]" %>
-          <% else %>
-            <%= link_to "Sign in", new_user_session_path, class: "inline-flex items-center rounded-full border border-[#CCCCC4] px-3 py-2 text-sm font-medium text-[#4A4A42] hover:border-[#0D0D0D]" %>
-            <%= link_to "Join", new_user_registration_path, class: "inline-flex items-center rounded-full bg-[#D4F93D] px-3 py-2 text-sm font-semibold text-black hover:bg-[#B8DC28]" %>
-          <% end %>
+          <details class="dropdown dropdown-end">
+            <summary class="inline-flex cursor-pointer list-none items-center gap-2 rounded-full border border-[#CCCCC4] px-3 py-2 text-sm font-medium text-[#4A4A42] hover:border-[#0D0D0D]">
+              <span>Menu</span>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-[#6D6D63]" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
+              </svg>
+            </summary>
+            <ul class="menu dropdown-content z-[80] mt-2 w-60 rounded-2xl border border-[#E8E8E2] bg-white p-2 shadow-lg">
+              <% if dashboard_mode_switch_enabled? %>
+                <li><%= link_to "Buyer dashboard", dashboard_index_path(mode: :buyer), class: "rounded-xl text-sm" %></li>
+                <li><%= link_to "Maker dashboard", dashboard_index_path(mode: :maker), class: "rounded-xl text-sm" %></li>
+              <% end %>
+              <% header_dropdown_items.each do |item| %>
+                <li><%= link_to item[:label], item[:path], class: "rounded-xl text-sm" %></li>
+              <% end %>
+              <% if admin_session_authenticated? %>
+                <li><%= link_to "Admin sign out", admin_logout_path, data: { turbo_method: :delete }, class: "rounded-xl text-sm" %></li>
+              <% end %>
+              <% if user_signed_in? %>
+                <li><%= link_to "Sign out", destroy_user_session_path, data: { turbo_method: :delete }, class: "rounded-xl text-sm" %></li>
+              <% end %>
+            </ul>
+          </details>
         </div>
       </div>
     </header>

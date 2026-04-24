@@ -42,6 +42,12 @@ class ProductsController < ApplicationController
       @maker_shop = Shop.find_by(id: @product.source_shop_id)
       @maker_profile = @maker_shop&.maker&.maker_profile
       @maker_onboarding_profile = @maker_shop&.maker&.maker_onboarding_profile
+      @favorite_count = ProductFavorite.where(product_slug: @product.slug).count
+      @shop_favorite_count = @maker_shop.present? ? @maker_shop.shop_favorites.count : 0
+      if user_signed_in?
+        @favorited_product = current_user.product_favorites.exists?(product_slug: @product.slug)
+        @favorited_shop = @maker_shop.present? && current_user.shop_favorites.exists?(shop_id: @maker_shop.id)
+      end
       return
     end
 

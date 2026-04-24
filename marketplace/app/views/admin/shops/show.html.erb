@@ -25,6 +25,11 @@
       </div>
 
       <div>
+        <label class="field-label" for="shop_username">Username</label>
+        <%= f.text_field :username, class: "input input-bordered mt-1 w-full", placeholder: "public_shop_username" %>
+      </div>
+
+      <div>
         <label class="field-label" for="shop_state">State</label>
         <%= f.select :state, Shop.states.keys.map { |state| [state.titleize, state] }, {}, class: "select select-bordered mt-1 w-full" %>
       </div>
@@ -40,7 +45,13 @@
   <article class="surface-panel p-5">
     <h2 class="text-lg font-bold">Shop Snapshot</h2>
     <ul class="mt-3 space-y-2 text-sm text-slate-700">
+      <li>Shop ID: <%= @shop.id %></li>
       <li>Maker: <%= @shop.maker&.email %></li>
+      <li>Maker ID: <%= @shop.maker_id %></li>
+      <li>Username: <%= @shop.username.presence || "-" %></li>
+      <li>Stripe customer ID: <%= @shop.stripe_customer_id.presence || "-" %></li>
+      <li>Created: <%= l(@shop.created_at, format: :long) %></li>
+      <li>Updated: <%= l(@shop.updated_at, format: :long) %></li>
       <li>Shop state: <span class="<%= status_pill_class(@shop.state) %>"><%= @shop.state %></span></li>
       <li>Approval state: <span class="<%= status_pill_class(@shop.shop_approval&.state || "pending") %>"><%= @shop.shop_approval&.state || "pending" %></span></li>
       <li>Catalog products linked: <%= @catalog_products.size %></li>
@@ -56,6 +67,83 @@
           </li>
         <% end %>
       </ul>
+    <% end %>
+  </article>
+</section>
+
+<section class="mt-4 grid gap-4 xl:grid-cols-2">
+  <article class="surface-panel p-5">
+    <h2 class="text-lg font-bold">Maker Application Inputs</h2>
+    <% if @maker_application.present? %>
+      <% application_fields = {
+        "First name" => @maker_application.first_name,
+        "Last name" => @maker_application.last_name,
+        "Email" => @maker_application.email,
+        "Business name" => @maker_application.business_name,
+        "Business URL" => @maker_application.business_url,
+        "What do you make?" => @maker_application.what_do_you_make,
+        "How long making" => @maker_application.how_long_making,
+        "State" => @maker_application.state,
+        "Submitted at" => (@maker_application.submitted_at.present? ? l(@maker_application.submitted_at, format: :long) : "-"),
+        "Reviewed at" => (@maker_application.reviewed_at.present? ? l(@maker_application.reviewed_at, format: :long) : "-"),
+        "Admin notes" => @maker_application.admin_notes
+      } %>
+      <dl class="mt-3 grid gap-2 text-sm text-slate-700">
+        <% application_fields.each do |label, value| %>
+          <div class="rounded-xl border border-slate-200 p-3">
+            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500"><%= label %></dt>
+            <dd class="mt-1 whitespace-pre-wrap"><%= value.presence || "-" %></dd>
+          </div>
+        <% end %>
+      </dl>
+    <% else %>
+      <p class="mt-2 text-sm text-slate-600">No maker application found for this shop owner.</p>
+    <% end %>
+  </article>
+
+  <article class="surface-panel p-5">
+    <h2 class="text-lg font-bold">Maker Onboarding Inputs</h2>
+    <% if @maker_onboarding_profile.present? %>
+      <% onboarding_fields = {
+        "Legal first name" => @maker_onboarding_profile.legal_first_name,
+        "Legal last name" => @maker_onboarding_profile.legal_last_name,
+        "Legal business name" => @maker_onboarding_profile.legal_business_name,
+        "Tax identifier" => @maker_onboarding_profile.tax_identifier,
+        "DBA business name" => @maker_onboarding_profile.dba_business_name,
+        "Username" => @maker_onboarding_profile.username,
+        "Year started" => @maker_onboarding_profile.year_started,
+        "Main product category" => @maker_onboarding_profile.main_product_category,
+        "What do you make and how started" => @maker_onboarding_profile.what_do_you_make_and_started,
+        "What inspires your work" => @maker_onboarding_profile.what_inspires_your_work,
+        "Favorite part of process" => @maker_onboarding_profile.favorite_part_of_process,
+        "Favorite product to make" => @maker_onboarding_profile.favorite_product_to_make,
+        "What you listen to" => @maker_onboarding_profile.what_you_listen_to,
+        "What makes work different" => @maker_onboarding_profile.what_makes_work_different,
+        "Time to create one piece" => @maker_onboarding_profile.time_to_create_one_piece,
+        "Workspace typical day" => @maker_onboarding_profile.workspace_typical_day,
+        "What people should know" => @maker_onboarding_profile.what_people_should_know,
+        "What to watch in process" => @maker_onboarding_profile.what_to_watch_in_process,
+        "Lead time for fulfillment" => @maker_onboarding_profile.lead_time_for_fulfillment,
+        "Shipping policy" => @maker_onboarding_profile.shipping_policy,
+        "Returns accepted" => @maker_onboarding_profile.returns_accepted,
+        "Exchanges accepted" => @maker_onboarding_profile.exchanges_accepted,
+        "Refunds accepted" => @maker_onboarding_profile.refunds_accepted,
+        "Additional policy information" => @maker_onboarding_profile.additional_policy_information,
+        "Cancellations accepted" => @maker_onboarding_profile.cancellations_accepted,
+        "Cancellation timeframe" => @maker_onboarding_profile.cancellation_timeframe,
+        "Privacy policy" => @maker_onboarding_profile.privacy_policy,
+        "Maker FAQ" => @maker_onboarding_profile.maker_faq
+      } %>
+      <dl class="mt-3 grid gap-2 text-sm text-slate-700">
+        <% onboarding_fields.each do |label, value| %>
+          <div class="rounded-xl border border-slate-200 p-3">
+            <dt class="text-xs font-semibold uppercase tracking-wide text-slate-500"><%= label %></dt>
+            <dd class="mt-1 whitespace-pre-wrap"><%= value.presence || "-" %></dd>
+          </div>
+        <% end %>
+      </dl>
+    <% else %>
+      <p class="mt-2 text-sm text-slate-600">No maker onboarding profile linked yet.</p>
     <% end %>
   </article>
 </section>

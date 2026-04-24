@@ -9,7 +9,14 @@ Rails.application.routes.draw do
     registrations: "users/registrations"
   }
 
-  resources :products, only: %i[index show]
+  resources :products, only: %i[index show] do
+    member do
+      post :favorite, to: "product_favorites#create"
+      delete :favorite, to: "product_favorites#destroy"
+    end
+  end
+  post "shops/:id/favorite", to: "shop_favorites#create", as: :favorite_shop
+  delete "shops/:id/favorite", to: "shop_favorites#destroy"
   post "checkout/:product_id", to: "checkout#create", as: :checkout_create
   get "checkout/success", to: "checkout#success", as: :checkout_success
   get "checkout/cancel", to: "checkout#cancel", as: :checkout_cancel
@@ -20,7 +27,12 @@ Rails.application.routes.draw do
     get "profile_onboarding", to: "profile_onboarding#show"
     post "profile_onboarding", to: "profile_onboarding#create"
     get "profile/:username", to: "profiles#show", as: :public_profile
-    resources :shops, only: %i[index new create show]
+    resources :shops, only: %i[index new create show] do
+      member do
+        post :connect_billing
+        post :sync_billing
+      end
+    end
   end
 
   namespace :admin do

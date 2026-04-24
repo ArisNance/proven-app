@@ -5,6 +5,7 @@ class Shop < ApplicationRecord
   has_one :shop_approval, dependent: :destroy
   has_one :maker_onboarding_profile, dependent: :nullify
   has_many :listing_fee_subscriptions, dependent: :destroy
+  has_many :shop_favorites, dependent: :destroy
 
   validates :name, presence: true
   validates :description, presence: true, length: { maximum: 2_500 }

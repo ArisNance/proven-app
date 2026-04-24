@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_23_154030) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_23_160010) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "vector"
@@ -257,6 +257,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_23_154030) do
     t.index ["reviewer_id"], name: "index_product_approvals_on_reviewer_id"
   end
 
+  create_table "product_favorites", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "product_slug", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_slug"], name: "index_product_favorites_on_product_slug"
+    t.index ["user_id", "product_slug"], name: "index_product_favorites_on_user_id_and_product_slug", unique: true
+    t.index ["user_id"], name: "index_product_favorites_on_user_id"
+  end
+
   create_table "recommendation_caches", force: :cascade do |t|
     t.bigint "buyer_id", null: false
     t.bigint "ranked_product_ids", default: [], null: false, array: true
@@ -277,6 +287,16 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_23_154030) do
     t.datetime "updated_at", null: false
     t.index ["reviewer_id"], name: "index_shop_approvals_on_reviewer_id"
     t.index ["shop_id"], name: "index_shop_approvals_on_shop_id"
+  end
+
+  create_table "shop_favorites", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "shop_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shop_id"], name: "index_shop_favorites_on_shop_id"
+    t.index ["user_id", "shop_id"], name: "index_shop_favorites_on_user_id_and_shop_id", unique: true
+    t.index ["user_id"], name: "index_shop_favorites_on_user_id"
   end
 
   create_table "shopify_connections", force: :cascade do |t|
@@ -1870,9 +1890,12 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_23_154030) do
   add_foreign_key "messages", "conversations"
   add_foreign_key "messages", "users", column: "sender_id"
   add_foreign_key "product_approvals", "users", column: "reviewer_id"
+  add_foreign_key "product_favorites", "users"
   add_foreign_key "recommendation_caches", "users", column: "buyer_id"
   add_foreign_key "shop_approvals", "shops"
   add_foreign_key "shop_approvals", "users", column: "reviewer_id"
+  add_foreign_key "shop_favorites", "shops"
+  add_foreign_key "shop_favorites", "users"
   add_foreign_key "shopify_connections", "users"
   add_foreign_key "shops", "users", column: "maker_id"
   add_foreign_key "spree_oauth_access_grants", "spree_oauth_applications", column: "application_id"

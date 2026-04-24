@@ -7,7 +7,8 @@
 
 <% rating = 4.9 %>
 <% review_count = 238 %>
-<% favorite_count = 612 %>
+<% favorite_count = @favorite_count.to_i %>
+<% shop_favorite_count = @shop_favorite_count.to_i %>
 <% verified_on = "March 1, 2026" %>
 <% delivery_start = (Date.current + 5.days).strftime("%b %-d") %>
 <% delivery_end = (Date.current + 10.days).strftime("%b %-d") %>
@@ -73,6 +74,17 @@
 
         <p class="mt-4 font-header text-4xl font-bold text-[#0D0D0D]"><%= number_to_currency(@product.price_cents.to_f / 100) %></p>
         <p class="mt-1 text-sm text-[#6D6D63]">or 4 interest-free payments of <%= number_to_currency((@product.price_cents.to_f / 100) / 4.0) %></p>
+        <div class="mt-4">
+          <% if user_signed_in? %>
+            <% if @favorited_product %>
+              <%= button_to "Remove from favorites", favorite_product_path(@product.slug), method: :delete, class: quick_action_classes(:secondary) %>
+            <% else %>
+              <%= button_to "Save to favorites", favorite_product_path(@product.slug), method: :post, class: quick_action_classes(:secondary) %>
+            <% end %>
+          <% else %>
+            <%= link_to "Sign in to save favorites", new_user_session_path, class: quick_action_classes(:secondary) %>
+          <% end %>
+        </div>
 
         <% if size_options.any? %>
           <div class="mt-5">
@@ -179,6 +191,9 @@
             <h2 class="text-2xl font-bold text-[#0D0D0D]">Meet your seller</h2>
             <p class="mt-1 text-sm text-[#4A4A42]"><strong><%= maker_name %></strong> · <%= maker_shop_name %></p>
             <p class="mt-2 text-sm text-[#4A4A42]"><%= truncate(maker_bio, length: 170) %></p>
+            <% if @maker_shop.present? %>
+              <p class="mt-2 text-xs text-[#8A8A80]"><%= shop_favorite_count %> shop favorites</p>
+            <% end %>
             <div class="mt-4 flex flex-wrap gap-3">
               <% if user_signed_in? && @maker_shop&.maker_id.present? %>
                 <%= link_to "Message seller", conversations_path(maker_id: @maker_shop&.maker_id), data: { turbo_method: :post }, class: quick_action_classes(:secondary) %>
@@ -189,6 +204,15 @@
               <% end %>
               <% if @maker_onboarding_profile&.username.present? %>
                 <%= link_to "Visit maker profile", makers_public_profile_path(username: @maker_onboarding_profile.username), class: quick_action_classes(:secondary) %>
+              <% end %>
+              <% if @maker_shop.present? && user_signed_in? %>
+                <% if @favorited_shop %>
+                  <%= button_to "Unsave shop", favorite_shop_path(@maker_shop), method: :delete, class: quick_action_classes(:secondary) %>
+                <% else %>
+                  <%= button_to "Favorite shop", favorite_shop_path(@maker_shop), method: :post, class: quick_action_classes(:secondary) %>
+                <% end %>
+              <% elsif @maker_shop.present? %>
+                <%= link_to "Sign in to favorite shop", new_user_session_path, class: quick_action_classes(:secondary) %>
               <% end %>
               <button type="button" class="inline-flex items-center gap-2 rounded-full border border-[#0C6B4A]/20 bg-[#E0FBF4] px-4 py-2 text-sm font-semibold text-[#0C6B4A] transition hover:bg-[#d0f5e8]" data-action="click->verification-modal#open">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

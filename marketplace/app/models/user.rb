@@ -9,6 +9,9 @@ class User < ApplicationRecord
   has_one :maker_application, dependent: :destroy
   has_one :maker_onboarding_profile, dependent: :destroy
   has_many :shops, foreign_key: :maker_id, dependent: :destroy
+  has_many :product_favorites, dependent: :destroy
+  has_many :shop_favorites, dependent: :destroy
+  has_many :favorite_shops, through: :shop_favorites, source: :shop
   has_many :shopify_connections, dependent: :destroy
   has_many :messages, foreign_key: :sender_id, dependent: :destroy
   has_many :buyer_conversations, class_name: "Conversation", foreign_key: :buyer_id, dependent: :destroy
@@ -26,7 +29,9 @@ class User < ApplicationRecord
   end
 
   def seller_account?
-    maker? || shops.exists?
+    return @seller_account if defined?(@seller_account)
+
+    @seller_account = maker? || shops.exists?
   end
 
   def buyer_only?

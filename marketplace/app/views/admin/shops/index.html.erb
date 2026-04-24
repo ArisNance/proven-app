@@ -16,9 +16,12 @@
         <tr>
           <th>ID</th>
           <th>Name</th>
+          <th>Username</th>
           <th>Maker</th>
           <th>State</th>
           <th>Approval</th>
+          <th>Stripe Customer</th>
+          <th>Updated</th>
           <th></th>
         </tr>
       </thead>
@@ -27,9 +30,12 @@
           <tr>
             <td><%= shop.id %></td>
             <td><%= shop.name %></td>
+            <td><%= shop.username.presence || "-" %></td>
             <td><%= shop.maker&.email %></td>
             <td><span class="<%= status_pill_class(shop.state) %>"><%= shop.state %></span></td>
             <td><span class="<%= status_pill_class(shop.shop_approval&.state || "pending") %>"><%= shop.shop_approval&.state || "pending" %></span></td>
+            <td><%= shop.stripe_customer_id.presence || "-" %></td>
+            <td><%= l(shop.updated_at, format: :short) %></td>
             <td><%= link_to "Open", admin_shop_path(shop), class: quick_action_classes(:secondary) %></td>
           </tr>
         <% end %>

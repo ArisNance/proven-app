@@ -1,11 +1,13 @@
 module Admin
   class ShopsController < BaseController
     def index
-      @shops = Shop.includes(:maker, :shop_approval).order(created_at: :desc)
+      @shops = Shop.includes(:maker, :shop_approval, :maker_onboarding_profile).order(created_at: :desc)
     end
 
     def show
-      @shop = Shop.includes(:maker, :shop_approval).find(params[:id])
+      @shop = Shop.includes(:maker, :shop_approval, :maker_onboarding_profile).find(params[:id])
+      @maker_application = @shop.maker.maker_application
+      @maker_onboarding_profile = @shop.maker_onboarding_profile || @shop.maker.maker_onboarding_profile
       @catalog_products = Storefront::Catalog.all.select { |product| product.source_shop_id.to_i == @shop.id }
     end
 
@@ -16,6 +18,8 @@ module Admin
         redirect_to admin_shop_path(shop), notice: "Shop updated."
       else
         @shop = shop
+        @maker_application = @shop.maker.maker_application
+        @maker_onboarding_profile = @shop.maker_onboarding_profile || @shop.maker.maker_onboarding_profile
         @catalog_products = []
         render :show, status: :unprocessable_entity
       end
@@ -33,7 +37,7 @@ module Admin
     private
 
     def shop_params
-      params.require(:shop).permit(:name, :description, :state)
+      params.require(:shop).permit(:name, :description, :state, :username)
     end
   end
 end
