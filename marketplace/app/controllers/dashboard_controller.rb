@@ -28,7 +28,7 @@ class DashboardController < ApplicationController
     @favorite_products = favorite_products_for(current_user, limit: 12)
     @favorite_shops = current_user.shop_favorites.includes(shop: { maker: :maker_profile }).order(created_at: :desc).limit(8).map(&:shop).compact
     @maker_application = current_user.maker_application
-    @show_sell_on_proven = current_user.buyer_only? && (@maker_application.blank? || @maker_application.rejected?)
+    @show_sell_on_proven = current_user.buyer_only? && current_user.shops.none? && (@maker_application.blank? || @maker_application.rejected?)
   end
 
   def load_seller_dashboard

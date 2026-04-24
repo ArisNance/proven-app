@@ -38,6 +38,7 @@ Rails.application.routes.draw do
         post :connect_billing
         post :sync_billing
       end
+      resources :products, only: %i[index new create], controller: "products"
     end
   end
 

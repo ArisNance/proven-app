@@ -1,0 +1,97 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Maker shops", path: makers_shops_path },
+  { label: @shop.name, path: makers_shop_path(@shop) },
+  { label: "Upload product" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Product Upload",
+  title: "Upload a Product for #{@shop.name}",
+  description: "Create a draft listing for admin review. Once approved, it appears in the storefront automatically.",
+  actions: [
+    { label: "Back to shop", path: makers_shop_path(@shop), style: :secondary },
+    { label: "Uploaded products", path: makers_shop_products_path(@shop), style: :secondary }
+  ] %>
+
+<section class="grid gap-4 xl:grid-cols-[1.15fr_0.85fr]">
+  <article class="form-card">
+    <%= render "shared/form_error_summary", record: @product_draft %>
+
+    <%= form_with model: @product_draft, url: makers_shop_products_path(@shop), class: "grid gap-4" do |f| %>
+      <div>
+        <label class="field-label" for="makers_product_draft_name">Product name <span class="field-meta">Required</span></label>
+        <%= f.text_field :name, class: "input input-bordered mt-1 w-full", required: true, placeholder: "Example: Hand-thrown Clay Mug" %>
+        <%= inline_field_error(@product_draft, :name) %>
+      </div>
+
+      <div>
+        <label class="field-label" for="makers_product_draft_description">Description <span class="field-meta">Required</span></label>
+        <%= f.text_area :description, class: "textarea textarea-bordered mt-1 h-28 w-full", required: true, placeholder: "Materials, process, sizing, and what makes this piece unique." %>
+        <%= inline_field_error(@product_draft, :description) %>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <div>
+          <label class="field-label" for="makers_product_draft_category">Main category <span class="field-meta">Required</span></label>
+          <%= f.select :category,
+            options_for_select(Makers::ProductDraft::MAIN_PRODUCT_CATEGORIES, @product_draft.category),
+            { include_blank: "Select category" },
+            class: "select select-bordered mt-1 w-full", required: true %>
+          <%= inline_field_error(@product_draft, :category) %>
+        </div>
+        <div>
+          <label class="field-label" for="makers_product_draft_material">Material</label>
+          <%= f.text_field :material, class: "input input-bordered mt-1 w-full", placeholder: "Ceramic, cotton, leather, etc." %>
+        </div>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <div>
+          <label class="field-label" for="makers_product_draft_price">Price (USD) <span class="field-meta">Required</span></label>
+          <%= f.number_field :price, class: "input input-bordered mt-1 w-full", min: 0.01, step: 0.01, required: true, placeholder: "45.00" %>
+          <%= inline_field_error(@product_draft, :price) %>
+        </div>
+        <div>
+          <label class="field-label" for="makers_product_draft_image_url">Primary image URL</label>
+          <%= f.url_field :image_url, class: "input input-bordered mt-1 w-full", placeholder: "https://..." %>
+          <%= inline_field_error(@product_draft, :image_url) %>
+        </div>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <div>
+          <label class="field-label" for="makers_product_draft_size_values">Sizes (comma-separated)</label>
+          <%= f.text_field :size_values, class: "input input-bordered mt-1 w-full", placeholder: "Small, Medium, Large" %>
+        </div>
+        <div>
+          <label class="field-label" for="makers_product_draft_color_values">Colors (comma-separated)</label>
+          <%= f.text_field :color_values, class: "input input-bordered mt-1 w-full", placeholder: "Oat, Sage, Charcoal" %>
+        </div>
+      </div>
+
+      <div class="mt-2 flex flex-wrap gap-2">
+        <%= f.submit "Submit product draft", class: quick_action_classes(:primary) %>
+        <%= link_to "Cancel", makers_shop_path(@shop), class: quick_action_classes(:secondary) %>
+      </div>
+    <% end %>
+  </article>
+
+  <aside class="space-y-4">
+    <section class="surface-panel p-5">
+      <h2 class="text-lg font-bold">Upload Checklist</h2>
+      <ul class="mt-3 space-y-2 text-sm text-slate-600">
+        <li>Use a clear product title and complete description.</li>
+        <li>Keep category aligned with your maker profile.</li>
+        <li>Add sizes/colors for better storefront filters.</li>
+        <li>Submitted products enter the admin approval queue automatically.</li>
+      </ul>
+    </section>
+
+    <section class="surface-panel p-5">
+      <h2 class="text-lg font-bold">Wizard Helper</h2>
+      <p class="mt-2 text-sm text-slate-600">Use the existing interactive wizard to plan listing details before submitting this form.</p>
+      <section class="mt-3" data-react-component="ProductWizard"></section>
+    </section>
+  </aside>
+</section>

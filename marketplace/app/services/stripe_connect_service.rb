@@ -16,7 +16,9 @@ class StripeConnectService
       }
     )
 
-    maker_profile.update!(stripe_account_id: account.id)
+    # Persist Stripe linkage even if non-critical profile validations are pending.
+    maker_profile.stripe_account_id = account.id
+    maker_profile.save!(validate: false)
     account.id
   end
 

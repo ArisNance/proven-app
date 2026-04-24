@@ -32,7 +32,9 @@
   <article class="surface-panel p-5">
     <div class="flex flex-wrap items-center justify-between gap-2">
       <h2 class="text-xl font-bold">Your Shops</h2>
-      <%= link_to "Create shop", new_makers_shop_path, class: quick_action_classes(:primary) %>
+      <% if can_create_shop? %>
+        <%= link_to "Create shop", new_makers_shop_path, class: quick_action_classes(:primary) %>
+      <% end %>
     </div>
 
     <% if @shops.any? %>
@@ -48,6 +50,10 @@
               <div class="flex flex-wrap items-center gap-2">
                 <span class="<%= status_pill_class(shop.state) %>"><%= shop.state.humanize %></span>
                 <%= link_to "Manage", makers_shop_path(shop), class: quick_action_classes(:secondary) %>
+                <% if shop.approved? %>
+                  <%= link_to "Upload product", new_makers_shop_product_path(shop), class: quick_action_classes(:secondary) %>
+                  <%= link_to "Products", makers_shop_products_path(shop), class: quick_action_classes(:secondary) %>
+                <% end %>
                 <% if shop.username.present? %>
                   <%= link_to "Public profile", makers_public_profile_path(username: shop.username), class: quick_action_classes(:secondary) %>
                 <% end %>
@@ -104,4 +110,3 @@
     </section>
   </aside>
 </section>
-

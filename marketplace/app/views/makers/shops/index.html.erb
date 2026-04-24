@@ -3,11 +3,14 @@
   { label: "Maker shops" }
 ] %>
 
+<% header_actions = [] %>
+<% header_actions << { label: "Create shop", path: new_makers_shop_path, style: :primary } if can_create_shop? %>
+
 <%= render "shared/page_header",
   eyebrow: "Maker Workspace",
   title: "Your Shops",
-  description: "Track approval status, billing sync, and the next action for every shop.",
-  actions: [{ label: "Create shop", path: new_makers_shop_path, style: :primary }] %>
+  description: "Track approval status, billing sync, and your next actions.",
+  actions: header_actions.presence %>
 
 <section class="surface-panel p-5">
   <div class="mb-4 flex flex-wrap items-center gap-2" role="tablist" aria-label="Filter shops by status">
@@ -54,6 +57,9 @@
               <td class="text-right">
                 <div class="flex justify-end gap-2">
                   <%= link_to "Open", makers_shop_path(shop), class: quick_action_classes(:secondary) %>
+                  <% if shop.approved? %>
+                    <%= link_to "Upload product", new_makers_shop_product_path(shop), class: quick_action_classes(:secondary) %>
+                  <% end %>
                   <% if shop.username.present? %>
                     <%= link_to "Profile", makers_public_profile_path(username: shop.username), class: quick_action_classes(:secondary) %>
                   <% end %>
@@ -65,9 +71,17 @@
       </table>
     </div>
   <% else %>
-    <%= render "shared/empty_state",
-      title: "No shops yet",
-      description: "Create your first shop to start approvals and listing fee billing.",
-      action: { label: "Create your first shop", path: new_makers_shop_path, style: :primary } %>
+    <% if can_create_shop? %>
+      <%= render "shared/empty_state",
+        title: "No shops yet",
+        description: "Create your first shop to start approvals and listing fee billing.",
+        action: { label: "Create your first shop", path: new_makers_shop_path, style: :primary } %>
+    <% else %>
+      <% existing_shop = current_user.shops.order(created_at: :asc).first %>
+      <%= render "shared/empty_state",
+        title: "No shops in this filter",
+        description: "Your account is limited to one shop. Switch filters or open your current shop.",
+        action: { label: "Open your shop", path: makers_shop_path(existing_shop), style: :secondary } %>
+    <% end %>
   <% end %>
 </section>

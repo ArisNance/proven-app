@@ -74,10 +74,15 @@ module ApplicationHelper
   def role_quick_actions
     case current_role
     when :maker
-      [
-        { label: "Create shop", path: new_makers_shop_path, style: :primary },
-        { label: "Maker onboarding", path: makers_profile_onboarding_path, style: :secondary }
-      ]
+      actions = []
+      if can_create_shop?
+        actions << { label: "Create shop", path: new_makers_shop_path, style: :primary }
+      else
+        primary_shop = current_user.shops.order(created_at: :asc).first
+        actions << { label: "Manage shop", path: makers_shop_path(primary_shop), style: :primary } if primary_shop.present?
+      end
+      actions << { label: "Maker onboarding", path: makers_profile_onboarding_path, style: :secondary }
+      actions
     when :buyer
       actions = [
         { label: "View dashboard", path: dashboard_destination_path, style: :primary },
@@ -96,10 +101,17 @@ module ApplicationHelper
   def sell_on_proven_eligible?
     return false unless user_signed_in?
     return false if current_user.admin?
+    return false if current_user.shops.exists?
     return false if current_user.seller_account?
 
     maker_application = current_user.maker_application
     maker_application.blank? || maker_application.rejected?
+  end
+
+  def can_create_shop?
+    return false unless user_signed_in?
+
+    current_user.shops.none?
   end
 
   def nav_link_classes(active)

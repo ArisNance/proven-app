@@ -1,0 +1,55 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Maker shops", path: makers_shops_path },
+  { label: @shop.name, path: makers_shop_path(@shop) },
+  { label: "Products" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Shop Products",
+  title: "#{@shop.name} Products",
+  description: "Manage uploaded listings and track approval status.",
+  actions: [
+    { label: "Back to shop", path: makers_shop_path(@shop), style: :secondary },
+    { label: "Upload product", path: new_makers_shop_product_path(@shop), style: :primary }
+  ] %>
+
+<section class="surface-panel p-5">
+  <% if @products.any? %>
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Approval</th>
+            <th>Updated</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @products.each do |product| %>
+            <% spree_id = product.id.to_s.sub(/\Aspree-/, "").to_i %>
+            <% approval = @product_approvals[spree_id] %>
+            <tr>
+              <td class="font-semibold text-slate-800"><%= product.name %></td>
+              <td><%= product.category %></td>
+              <td><%= number_to_currency(product.price_cents.to_f / 100) %></td>
+              <td><span class="<%= status_pill_class(approval&.state || "pending") %>"><%= (approval&.state || "pending").to_s.humanize %></span></td>
+              <td class="text-sm text-slate-500"><%= l((product.created_at || Time.current), format: :short) %></td>
+              <td class="text-right">
+                <%= link_to "View storefront", product_path(product.slug.presence || product.id), class: quick_action_classes(:secondary) %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <%= render "shared/empty_state",
+      title: "No products uploaded yet",
+      description: "Upload your first product draft to start the approval workflow.",
+      action: { label: "Upload product", path: new_makers_shop_product_path(@shop), style: :primary } %>
+  <% end %>
+</section>

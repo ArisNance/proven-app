@@ -9,6 +9,7 @@ class Shop < ApplicationRecord
 
   validates :name, presence: true
   validates :description, presence: true, length: { maximum: 2_500 }
+  validates :maker_id, uniqueness: { message: "can only have one shop on Proven" }
   validates :username, uniqueness: { case_sensitive: false }, allow_blank: true
   validates :username, format: { with: /\A[a-z0-9_]+\z/, message: "can only include lowercase letters, numbers, and underscores" }, allow_blank: true
 end

@@ -2,6 +2,7 @@ module Makers
   class ShopsController < ApplicationController
     before_action :authenticate_user!
     before_action :ensure_maker_ready!, only: %i[new create]
+    before_action :ensure_single_shop_limit!, only: %i[new create]
     before_action :set_shop, only: %i[show connect_billing sync_billing]
 
     def index
@@ -14,6 +15,7 @@ module Makers
       @approval = @shop.shop_approval
       @listing_fee_subscription = @shop.listing_fee_subscriptions.order(created_at: :desc).first
       @stripe_configured = ENV["STRIPE_SECRET_KEY"].present?
+      @uploaded_products = Storefront::Catalog.all.select { |product| product.source_shop_id.to_i == @shop.id }.first(6)
     end
 
     def connect_billing
@@ -29,7 +31,7 @@ module Makers
       )
 
       redirect_to onboarding_url, allow_other_host: true
-    rescue Stripe::StripeError => e
+    rescue Stripe::StripeError, ActiveRecord::RecordInvalid => e
       redirect_to makers_shop_path(@shop), alert: "Could not open Stripe onboarding: #{e.message}"
     end
 
@@ -90,6 +92,13 @@ module Makers
     rescue Stripe::StripeError, StandardError => e
       Rails.logger.error("Billing setup failed for shop #{shop.id}: #{e.message}")
       flash[:alert] = "Shop submitted, but billing setup could not finish. Reopen this shop later to retry."
+    end
+
+    def ensure_single_shop_limit!
+      return if current_user.shops.none?
+
+      existing_shop = current_user.shops.order(created_at: :asc).first
+      redirect_to makers_shop_path(existing_shop), alert: "You can only have one shop on Proven."
     end
 
     def ensure_maker_profile_for_billing!

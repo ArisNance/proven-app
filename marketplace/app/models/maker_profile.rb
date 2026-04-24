@@ -17,14 +17,18 @@ class MakerProfile < ApplicationRecord
 
   def country_supported
     return if country.blank?
-    return if supported_country_names.include?(country.to_s.strip.downcase)
+    supported = supported_country_names
+    return if supported.empty?
+    return if supported.include?(country.to_s.strip.downcase)
 
     errors.add(:country, "must be selected from the supported countries list")
   end
 
   def currency_supported
     return if preferred_currency.blank?
-    return if supported_currency_codes.include?(preferred_currency.to_s.upcase)
+    supported = supported_currency_codes
+    return if supported.empty?
+    return if supported.include?(preferred_currency.to_s.upcase)
 
     errors.add(:preferred_currency, "must be a supported 3-letter currency code")
   end
