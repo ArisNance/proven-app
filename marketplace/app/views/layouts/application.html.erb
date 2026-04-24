@@ -37,6 +37,15 @@
         </nav>
 
         <div class="flex items-center gap-2">
+          <%= link_to storefront_cart_path, class: "relative inline-flex items-center justify-center rounded-full border border-[#CCCCC4] p-2.5 text-[#4A4A42] transition hover:border-[#0D0D0D] hover:text-[#0D0D0D]", aria: { label: "Open cart" } do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 3h2l.4 2m0 0h13.6l-1.5 8.5H7.2L5.4 5Zm3.2 11.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Zm8.8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z" />
+            </svg>
+            <% if cart_item_count.positive? %>
+              <span class="absolute -right-1 -top-1 inline-flex min-h-[1.2rem] min-w-[1.2rem] items-center justify-center rounded-full bg-[#D4F93D] px-1 text-[10px] font-bold text-black"><%= cart_item_count %></span>
+            <% end %>
+          <% end %>
+
           <details class="dropdown dropdown-end">
             <summary class="inline-flex cursor-pointer list-none items-center gap-2 rounded-full border border-[#CCCCC4] px-3 py-2 text-sm font-medium text-[#4A4A42] hover:border-[#0D0D0D]">
               <span>Menu</span>

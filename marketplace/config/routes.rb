@@ -15,8 +15,14 @@ Rails.application.routes.draw do
       delete :favorite, to: "product_favorites#destroy"
     end
   end
+  get "storefront/cart", to: "storefront/cart#show", as: :storefront_cart
+  patch "storefront/cart/items/:product_id", to: "storefront/cart#update_item", as: :storefront_cart_update_item
+  delete "storefront/cart/items/:product_id", to: "storefront/cart#remove_item", as: :storefront_cart_remove_item
+  delete "storefront/cart/clear", to: "storefront/cart#clear", as: :storefront_cart_clear
   post "shops/:id/favorite", to: "shop_favorites#create", as: :favorite_shop
   delete "shops/:id/favorite", to: "shop_favorites#destroy"
+  get "checkout", to: "checkout#new", as: :checkout
+  post "checkout/place_order", to: "checkout#place_order", as: :checkout_place_order
   post "checkout/:product_id", to: "checkout#create", as: :checkout_create
   get "checkout/success", to: "checkout#success", as: :checkout_success
   get "checkout/cancel", to: "checkout#cancel", as: :checkout_cancel

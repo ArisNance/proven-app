@@ -1,0 +1,103 @@
+<%= render "shared/breadcrumbs", items: [
+  { label: "Home", path: root_path },
+  { label: "Bag", path: storefront_cart_path },
+  { label: "Checkout" }
+] %>
+
+<%= render "shared/page_header",
+  eyebrow: "Secure Checkout",
+  title: "Checkout",
+  description: "Complete shipping details below. We keep checkout on-brand and prepare ShipStation-ready shipment data.",
+  actions: [{ label: "Back to bag", path: storefront_cart_path, style: :secondary }] %>
+
+<section class="mt-4 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+  <article class="surface-panel p-5">
+    <%= render "shared/form_error_summary", record: @checkout_form %>
+
+    <%= form_with model: @checkout_form, url: checkout_place_order_path, class: "grid gap-4" do |f| %>
+      <h2 class="text-lg font-bold text-[#0D0D0D]">Contact</h2>
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="md:col-span-2">
+          <label class="field-label" for="checkout_form_email">Email <span class="field-meta">Required</span></label>
+          <%= f.email_field :email, class: "input input-bordered mt-1 w-full", required: true %>
+          <%= inline_field_error(@checkout_form, :email) %>
+        </div>
+        <div>
+          <label class="field-label" for="checkout_form_first_name">First name <span class="field-meta">Required</span></label>
+          <%= f.text_field :first_name, class: "input input-bordered mt-1 w-full", required: true %>
+          <%= inline_field_error(@checkout_form, :first_name) %>
+        </div>
+        <div>
+          <label class="field-label" for="checkout_form_last_name">Last name <span class="field-meta">Required</span></label>
+          <%= f.text_field :last_name, class: "input input-bordered mt-1 w-full", required: true %>
+          <%= inline_field_error(@checkout_form, :last_name) %>
+        </div>
+        <div class="md:col-span-2">
+          <label class="field-label" for="checkout_form_phone">Phone</label>
+          <%= f.telephone_field :phone, class: "input input-bordered mt-1 w-full" %>
+        </div>
+      </div>
+
+      <h2 class="mt-4 text-lg font-bold text-[#0D0D0D]">Shipping Address</h2>
+      <div class="grid gap-4 md:grid-cols-2">
+        <div class="md:col-span-2">
+          <label class="field-label" for="checkout_form_address1">Address line 1 <span class="field-meta">Required</span></label>
+          <%= f.text_field :address1, class: "input input-bordered mt-1 w-full", required: true %>
+          <%= inline_field_error(@checkout_form, :address1) %>
+        </div>
+        <div class="md:col-span-2">
+          <label class="field-label" for="checkout_form_address2">Address line 2</label>
+          <%= f.text_field :address2, class: "input input-bordered mt-1 w-full" %>
+        </div>
+        <div>
+          <label class="field-label" for="checkout_form_city">City <span class="field-meta">Required</span></label>
+          <%= f.text_field :city, class: "input input-bordered mt-1 w-full", required: true %>
+          <%= inline_field_error(@checkout_form, :city) %>
+        </div>
+        <div>
+          <label class="field-label" for="checkout_form_state">State/Region <span class="field-meta">Required</span></label>
+          <%= f.text_field :state, class: "input input-bordered mt-1 w-full", required: true %>
+          <%= inline_field_error(@checkout_form, :state) %>
+        </div>
+        <div>
+          <label class="field-label" for="checkout_form_postal_code">Postal code <span class="field-meta">Required</span></label>
+          <%= f.text_field :postal_code, class: "input input-bordered mt-1 w-full", required: true %>
+          <%= inline_field_error(@checkout_form, :postal_code) %>
+        </div>
+        <div>
+          <label class="field-label" for="checkout_form_country">Country <span class="field-meta">Required</span></label>
+          <%= f.text_field :country, class: "input input-bordered mt-1 w-full", required: true %>
+          <%= inline_field_error(@checkout_form, :country) %>
+        </div>
+        <div class="md:col-span-2">
+          <label class="field-label" for="checkout_form_shipping_notes">Delivery notes</label>
+          <%= f.text_area :shipping_notes, class: "textarea textarea-bordered mt-1 h-24 w-full", placeholder: "Apartment buzzer, leave at front desk, etc." %>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-2">
+        <%= f.submit "Place order", class: quick_action_classes(:primary) %>
+        <%= link_to "Back to bag", storefront_cart_path, class: quick_action_classes(:secondary) %>
+      </div>
+    <% end %>
+  </article>
+
+  <aside class="surface-panel p-5">
+    <h2 class="text-xl font-bold text-[#0D0D0D]">Order Summary</h2>
+    <ul class="mt-4 space-y-2 text-sm text-[#4A4A42]">
+      <% @cart_items.each do |item| %>
+        <li class="flex items-center justify-between gap-2 rounded-xl border border-[#E8E8E2] px-3 py-2">
+          <span><%= item.product.name %> × <%= item.quantity %></span>
+          <strong class="text-[#0D0D0D]"><%= number_to_currency(item.line_total_cents / 100.0) %></strong>
+        </li>
+      <% end %>
+    </ul>
+    <div class="mt-4 border-t border-[#E8E8E2] pt-3 text-sm">
+      <div class="flex items-center justify-between">
+        <span class="text-[#4A4A42]">Subtotal</span>
+        <strong class="text-[#0D0D0D]"><%= number_to_currency(@subtotal_cents / 100.0) %></strong>
+      </div>
+      <p class="mt-2 text-xs text-[#8A8A80]">Shipping labels and tracking are synced using ShipStation after order submission.</p>
+    </div>
+  </aside>
+</section>

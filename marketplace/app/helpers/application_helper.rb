@@ -65,6 +65,12 @@ module ApplicationHelper
       session[:proven_admin_seeded_login].to_s == Admin::SessionsController::ADMIN_USERNAME
   end
 
+  def cart_item_count
+    @cart_item_count ||= Storefront::Cart.new(session: session).item_count
+  rescue StandardError
+    0
+  end
+
   def role_quick_actions
     case current_role
     when :maker

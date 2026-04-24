@@ -19,6 +19,26 @@ module Shipstation
       response.parsed_response
     end
 
+    def post(path_or_url, body: {})
+      url = absolute_url(path_or_url)
+      response = HTTParty.post(
+        url,
+        basic_auth: {
+          username: ENV["SHIPSTATION_API_KEY"],
+          password: ENV["SHIPSTATION_API_SECRET"]
+        },
+        headers: {
+          "Accept" => "application/json",
+          "Content-Type" => "application/json"
+        },
+        body: body.to_json
+      )
+
+      raise "ShipStation request failed: #{response.code} #{response.body}" unless response.success?
+
+      response.parsed_response
+    end
+
     private
 
     def absolute_url(path_or_url)
@@ -30,4 +50,3 @@ module Shipstation
     end
   end
 end
-

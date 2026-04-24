@@ -9,6 +9,7 @@ class User < ApplicationRecord
   has_one :maker_application, dependent: :destroy
   has_one :maker_onboarding_profile, dependent: :destroy
   has_many :shops, foreign_key: :maker_id, dependent: :destroy
+  has_many :checkout_orders, dependent: :nullify
   has_many :product_favorites, dependent: :destroy
   has_many :shop_favorites, dependent: :destroy
   has_many :favorite_shops, through: :shop_favorites, source: :shop

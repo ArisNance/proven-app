@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_04_23_160010) do
+ActiveRecord::Schema[7.1].define(version: 2026_04_24_193000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "vector"
@@ -68,6 +68,37 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_23_160010) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_buyer_profiles_on_user_id", unique: true
+  end
+
+  create_table "checkout_orders", force: :cascade do |t|
+    t.bigint "user_id"
+    t.string "reference_code", null: false
+    t.integer "status", default: 0, null: false
+    t.string "email", null: false
+    t.string "first_name", null: false
+    t.string "last_name", null: false
+    t.string "phone"
+    t.string "address1", null: false
+    t.string "address2"
+    t.string "city", null: false
+    t.string "state", null: false
+    t.string "postal_code", null: false
+    t.string "country", null: false
+    t.text "shipping_notes"
+    t.integer "total_cents", null: false
+    t.string "currency", default: "USD", null: false
+    t.jsonb "cart_snapshot", default: [], null: false
+    t.jsonb "shipstation_payload", default: {}, null: false
+    t.datetime "submitted_at"
+    t.datetime "shipstation_submitted_at"
+    t.string "shipstation_order_id"
+    t.string "shipstation_order_number"
+    t.text "shipstation_error"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["reference_code"], name: "index_checkout_orders_on_reference_code", unique: true
+    t.index ["status"], name: "index_checkout_orders_on_status"
+    t.index ["user_id"], name: "index_checkout_orders_on_user_id"
   end
 
   create_table "conversations", force: :cascade do |t|
@@ -1876,6 +1907,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_04_23_160010) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "buyer_profiles", "users"
+  add_foreign_key "checkout_orders", "users"
   add_foreign_key "conversations", "users", column: "buyer_id"
   add_foreign_key "conversations", "users", column: "maker_id"
   add_foreign_key "listing_fee_subscriptions", "shops"

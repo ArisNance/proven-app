@@ -117,8 +117,8 @@
             class: "select select-bordered mt-2 w-full rounded-2xl border-[#CCCCC4] bg-white" %>
 
           <div class="mt-6 grid gap-3 sm:grid-cols-2">
-            <%= form.submit "Add to bag", class: "inline-flex items-center justify-center rounded-full bg-[#D4F93D] px-6 py-3 text-sm font-bold text-black hover:bg-[#B8DC28]" %>
-            <%= form.submit "Buy it now", class: "inline-flex items-center justify-center rounded-full border border-[#0D0D0D] px-6 py-3 text-sm font-semibold text-[#0D0D0D] hover:bg-[#0D0D0D] hover:text-white" %>
+            <%= form.submit "Add to bag", name: "checkout_action", value: "add_to_bag", class: "inline-flex items-center justify-center rounded-full bg-[#D4F93D] px-6 py-3 text-sm font-bold text-black hover:bg-[#B8DC28]" %>
+            <%= form.submit "Buy it now", name: "checkout_action", value: "buy_now", class: "inline-flex items-center justify-center rounded-full border border-[#0D0D0D] px-6 py-3 text-sm font-semibold text-[#0D0D0D] hover:bg-[#0D0D0D] hover:text-white" %>
           </div>
         <% end %>
 
