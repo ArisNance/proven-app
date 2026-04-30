@@ -11,4 +11,6 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "example.com") }
   config.hosts << "proven-app-production-e60e.up.railway.app"
   config.hosts << "shopproven.com"
+  config.hosts << "www.shopproven.com"
+  config.hosts << "marketplace.shopproven.com"
 end
