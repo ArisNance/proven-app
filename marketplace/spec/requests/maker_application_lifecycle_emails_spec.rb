@@ -58,7 +58,7 @@ RSpec.describe "Maker application lifecycle emails", type: :request do
     mail = ActionMailer::Base.deliveries.last
     expect(mail.subject).to eq("Maker application received")
     expect(mail.to).to eq([user.email])
-    expect(mail.from).to eq(["onboarding@resend.dev"])
+    expect(mail.from).to eq(Array(ApplicationMailer.default_params[:from]))
     expect(mail.body.encoded).to include("Hi Mia")
   end
 

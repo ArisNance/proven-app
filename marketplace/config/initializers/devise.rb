@@ -1,5 +1,5 @@
 Devise.setup do |config|
-  config.mailer_sender = Rails.env.production? ? "noreply@shopproven.com" : "onboarding@resend.dev"
+  config.mailer_sender = ENV.fetch("RESEND_FROM_EMAIL", Rails.env.production? ? "noreply@shopproven.com" : "onboarding@resend.dev")
   config.secret_key = ENV.fetch("DEVISE_SECRET_KEY", "devise-secret-key-change-me-in-production")
   require "devise/orm/active_record"
 
