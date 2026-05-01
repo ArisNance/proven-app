@@ -104,8 +104,15 @@ module ApplicationHelper
     return false if current_user.shops.exists?
     return false if current_user.seller_account?
 
-    maker_application = current_user.maker_application
-    maker_application.blank? || maker_application.rejected?
+    return @sell_on_proven_eligible if defined?(@sell_on_proven_eligible)
+
+    @sell_on_proven_eligible = begin
+      maker_state = MakerApplication.where(user_id: current_user.id).pick(:state)
+      maker_state.nil? || maker_state == MakerApplication.states.fetch("rejected")
+    rescue ActiveRecord::ActiveRecordError => e
+      Rails.logger.error("[sell_on_proven_eligible?] maker lookup failed for user_id=#{current_user.id}: #{e.class}: #{e.message}")
+      false
+    end
   end
 
   def can_create_shop?
