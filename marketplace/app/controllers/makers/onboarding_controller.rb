@@ -14,13 +14,15 @@ module Makers
       @maker_application.submitted_at ||= Time.current
 
       if @maker_application.save
+        confirmation_email_sent = true
         if @maker_application.saved_change_to_state? && @maker_application.state == "submitted"
-          MakerApplicationLifecycleEmailService.application_received!(@maker_application)
+          confirmation_email_sent = MakerApplicationLifecycleEmailService.application_received!(@maker_application)
         end
 
         if @maker_application.accepted?
           redirect_to makers_profile_onboarding_path, notice: "Application accepted. Complete your onboarding profile."
         else
+          flash[:alert] = "Your application was submitted, but we could not send the confirmation email right now." unless confirmation_email_sent
           redirect_to dashboard_index_path, notice: "Your maker application has been submitted for review."
         end
       else

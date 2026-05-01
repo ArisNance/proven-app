@@ -37,9 +37,13 @@ module Admin
       end
 
       @maker_application.update!(state: :accepted, reviewer: admin_reviewer, reviewed_at: Time.current)
-      MakerApplicationLifecycleEmailService.application_accepted_schedule_verification!(@maker_application)
+      email_sent = MakerApplicationLifecycleEmailService.application_accepted_schedule_verification!(@maker_application)
 
-      redirect_to admin_maker_application_path(@maker_application), notice: "Maker accepted. Verification scheduling email sent."
+      if email_sent
+        redirect_to admin_maker_application_path(@maker_application), notice: "Maker accepted. Verification scheduling email sent."
+      else
+        redirect_to admin_maker_application_path(@maker_application), alert: "Maker accepted, but verification scheduling email failed to send."
+      end
     end
 
     def complete_verification
@@ -58,9 +62,13 @@ module Admin
       verification.verified_on ||= Time.current
       verification.save! if verification.new_record? || verification.changed?
 
-      MakerApplicationLifecycleEmailService.verification_completed!(@maker_application)
+      email_sent = MakerApplicationLifecycleEmailService.verification_completed!(@maker_application)
 
-      redirect_to admin_maker_application_path(@maker_application), notice: "Verification marked complete. Review email sent."
+      if email_sent
+        redirect_to admin_maker_application_path(@maker_application), notice: "Verification marked complete. Review email sent."
+      else
+        redirect_to admin_maker_application_path(@maker_application), alert: "Verification marked complete, but review email failed to send."
+      end
     end
 
     def approve
@@ -94,9 +102,13 @@ module Admin
         ensure_maker_profile_for!(user)
       end
 
-      MakerApplicationLifecycleEmailService.verification_approved!(@maker_application)
+      email_sent = MakerApplicationLifecycleEmailService.verification_approved!(@maker_application)
 
-      redirect_to admin_maker_application_path(@maker_application), notice: "Verification approved."
+      if email_sent
+        redirect_to admin_maker_application_path(@maker_application), notice: "Verification approved."
+      else
+        redirect_to admin_maker_application_path(@maker_application), alert: "Verification approved, but the approval email failed to send."
+      end
     end
 
     def reject

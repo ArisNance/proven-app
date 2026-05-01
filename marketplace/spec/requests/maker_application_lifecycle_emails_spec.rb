@@ -146,4 +146,31 @@ RSpec.describe "Maker application lifecycle emails", type: :request do
     expect(mail.to).to eq([user.email])
     expect(mail.body.encoded).to include("Hi Ava")
   end
+
+  it "does not 500 onboarding when email delivery fails" do
+    user = User.create!(email: "maker-email-failure@example.com", password: password, role: :buyer)
+    sign_in_user!(email: user.email, password: password)
+    allow(MakerLifecycleEmailRetryJob).to receive(:perform_async).and_return("retry-jid-123")
+    allow_any_instance_of(ActionMailer::MessageDelivery).to receive(:deliver_now).and_raise(StandardError, "Resend outage")
+
+    post makers_onboarding_path, params: {
+      maker_application: maker_application_attributes(email: user.email, first_name: "Liam")
+    }
+
+    expect(response).to redirect_to(dashboard_index_path)
+
+    maker_application = user.reload.maker_application
+    expect(maker_application.workflow_status).to eq("application_received")
+    expect(maker_application.communication_history.size).to eq(1)
+    expect(maker_application.communication_history.last["event_type"]).to eq("email_failed")
+    expect(maker_application.communication_history.last["template"]).to eq("maker_application_received")
+    expect(maker_application.communication_history.last.dig("metadata", "delivery_status")).to eq("failed")
+    expect(maker_application.communication_history.last.dig("metadata", "retry_job_enqueued")).to eq(true)
+    expect(MakerLifecycleEmailRetryJob).to have_received(:perform_async).with(
+      maker_application.id,
+      "application_received",
+      "application_received",
+      "maker_application_received"
+    )
+  end
 end
