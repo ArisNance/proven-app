@@ -1,0 +1,19 @@
+<h1 style="margin-top: 0; font-size: 22px; color: #111111;">Application accepted</h1>
+<p style="color: #333333; font-size: 15px; line-height: 1.6;">
+  Hi <%= @first_name %>,
+</p>
+<p style="color: #333333; font-size: 15px; line-height: 1.6;">
+  Great news - your maker application has been accepted.
+</p>
+<p style="color: #333333; font-size: 15px; line-height: 1.6;">
+  Please schedule your live verification session here:
+</p>
+<p style="margin: 20px 0;">
+  <a href="<%= @scheduling_link %>" style="display: inline-block; background: #D4F93D; color: #111111; text-decoration: none; font-weight: 700; padding: 10px 16px; border-radius: 999px;">
+    Schedule verification
+  </a>
+</p>
+<p style="color: #333333; font-size: 15px; line-height: 1.6;">
+  If the button does not work, use this link:<br>
+  <a href="<%= @scheduling_link %>" style="color: #0A5BD8;"><%= @scheduling_link %></a>
+</p>

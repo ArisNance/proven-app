@@ -48,9 +48,11 @@
 
   <aside class="surface-panel p-5">
     <h2 class="text-xl font-bold text-[#0D0D0D]">Decision Actions</h2>
-    <p class="mt-2 text-sm text-[#4A4A42]">A maker must have overall verification confidence score of 4 or 5 to pass.</p>
+    <p class="mt-2 text-sm text-[#4A4A42]">Run these in order: accept application, mark verification complete, then approve verification. A maker must have overall confidence score of 4 or 5 to pass final approval.</p>
     <div class="mt-4 flex flex-wrap gap-2">
-      <%= button_to "Approve maker", approve_admin_maker_application_path(@maker_application), method: :post, class: quick_action_classes(:primary) %>
+      <%= button_to "Accept + schedule verification", accept_admin_maker_application_path(@maker_application), method: :post, class: quick_action_classes(:primary) %>
+      <%= button_to "Mark verification completed", complete_verification_admin_maker_application_path(@maker_application), method: :post, class: quick_action_classes(:secondary) %>
+      <%= button_to "Approve verification", approve_admin_maker_application_path(@maker_application), method: :post, class: quick_action_classes(:primary) %>
       <%= button_to "Reject maker", reject_admin_maker_application_path(@maker_application), method: :post, class: "inline-flex items-center justify-center rounded-full border border-rose-300 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-50" %>
     </div>
   </aside>

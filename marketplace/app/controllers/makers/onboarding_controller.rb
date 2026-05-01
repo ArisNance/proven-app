@@ -14,6 +14,10 @@ module Makers
       @maker_application.submitted_at ||= Time.current
 
       if @maker_application.save
+        if @maker_application.saved_change_to_state? && @maker_application.state == "submitted"
+          MakerApplicationLifecycleEmailService.application_received!(@maker_application)
+        end
+
         if @maker_application.accepted?
           redirect_to makers_profile_onboarding_path, notice: "Application accepted. Complete your onboarding profile."
         else

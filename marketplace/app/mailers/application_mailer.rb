@@ -1,4 +1,4 @@
 class ApplicationMailer < ActionMailer::Base
-  default from: ENV.fetch("RESEND_FROM_EMAIL", "no-reply@example.com")
+  default from: Rails.env.production? ? "noreply@shopproven.com" : "onboarding@resend.dev"
   layout "mailer"
 end

@@ -8,6 +8,8 @@ Rails.application.configure do
   config.force_ssl = ENV.fetch("FORCE_SSL", "true") == "true"
   config.log_level = :info
   config.active_job.queue_adapter = :sidekiq
+  config.action_mailer.delivery_method = :resend
+  config.action_mailer.perform_deliveries = true
   config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "example.com") }
   config.hosts << "proven-app-production-e60e.up.railway.app"
   config.hosts << "shopproven.com"

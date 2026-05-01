@@ -14,6 +14,12 @@ class MakerApplication < ApplicationRecord
     accepted: 3,
     rejected: 4
   }
+  enum workflow_status: {
+    application_received: "application_received",
+    accepted_pending_verification: "accepted_pending_verification",
+    verification_under_review: "verification_under_review",
+    verified: "verified"
+  }, _prefix: :workflow_status
 
   belongs_to :user
   belongs_to :reviewer, class_name: "User", optional: true
@@ -35,6 +41,21 @@ class MakerApplication < ApplicationRecord
     state.in?(%w[submitted in_review accepted rejected])
   end
 
+  def log_communication_event!(event_type:, template:, subject:, recipient_email:, metadata: {})
+    entry = {
+      event_type: event_type,
+      template: template,
+      subject: subject,
+      recipient_email: recipient_email,
+      sent_at: Time.current.iso8601,
+      metadata: metadata
+    }
+
+    with_lock do
+      update!(communication_history: Array(communication_history) + [entry])
+    end
+  end
+
   private
 
   def populate_email_from_user
@@ -45,4 +66,3 @@ class MakerApplication < ApplicationRecord
     self.email = email.to_s.strip.downcase if email.present?
   end
 end
-

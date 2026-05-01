@@ -1,6 +1,6 @@
 module Admin
   class MakerApplicationsController < BaseController
-    before_action :set_maker_application, only: %i[show update approve reject]
+    before_action :set_maker_application, only: %i[show update accept complete_verification approve reject]
 
     def index
       @state_filter = params[:state].presence_in(MakerApplication.states.keys)
@@ -21,14 +21,64 @@ module Admin
       @maker_application.assign_attributes(maker_application_admin_params) if params[:maker_application].present?
 
       if @maker_verification.save && @maker_application.save
-        @maker_application.update!(state: :in_review, reviewer: admin_reviewer) if @maker_application.submitted?
+        @maker_application.update!(state: :in_review, reviewer: admin_reviewer) if @maker_application.state == "submitted"
         redirect_to admin_maker_application_path(@maker_application), notice: "Verification details saved."
       else
         render :show, status: :unprocessable_entity
       end
     end
 
+    def accept
+      if @maker_application.workflow_status_accepted_pending_verification? ||
+          @maker_application.workflow_status_verification_under_review? ||
+          @maker_application.workflow_status_verified?
+        redirect_to admin_maker_application_path(@maker_application), notice: "Acceptance email already sent for this maker."
+        return
+      end
+
+      @maker_application.update!(state: :accepted, reviewer: admin_reviewer, reviewed_at: Time.current)
+      MakerApplicationLifecycleEmailService.application_accepted_schedule_verification!(@maker_application)
+
+      redirect_to admin_maker_application_path(@maker_application), notice: "Maker accepted. Verification scheduling email sent."
+    end
+
+    def complete_verification
+      unless @maker_application.accepted?
+        redirect_to admin_maker_application_path(@maker_application), alert: "Accept the maker application before marking verification complete."
+        return
+      end
+
+      if @maker_application.workflow_status_verification_under_review? || @maker_application.workflow_status_verified?
+        redirect_to admin_maker_application_path(@maker_application), notice: "Verification completion email already sent for this maker."
+        return
+      end
+
+      verification = @maker_application.maker_verification || @maker_application.build_maker_verification
+      verification.verified_by ||= admin_reviewer
+      verification.verified_on ||= Time.current
+      verification.save! if verification.new_record? || verification.changed?
+
+      MakerApplicationLifecycleEmailService.verification_completed!(@maker_application)
+
+      redirect_to admin_maker_application_path(@maker_application), notice: "Verification marked complete. Review email sent."
+    end
+
     def approve
+      unless @maker_application.accepted?
+        redirect_to admin_maker_application_path(@maker_application), alert: "Accept the maker application before approving verification."
+        return
+      end
+
+      unless @maker_application.workflow_status_verification_under_review? || @maker_application.workflow_status_verified?
+        redirect_to admin_maker_application_path(@maker_application), alert: "Mark verification as completed before approving."
+        return
+      end
+
+      if @maker_application.workflow_status_verified?
+        redirect_to admin_maker_application_path(@maker_application), notice: "Verification has already been approved."
+        return
+      end
+
       verification = @maker_application.maker_verification
       if verification.blank? || !verification.passes?
         redirect_to admin_maker_application_path(@maker_application), alert: "Set overall confidence to 4 or 5 before approving."
@@ -44,7 +94,9 @@ module Admin
         ensure_maker_profile_for!(user)
       end
 
-      redirect_to admin_maker_application_path(@maker_application), notice: "Maker application approved."
+      MakerApplicationLifecycleEmailService.verification_approved!(@maker_application)
+
+      redirect_to admin_maker_application_path(@maker_application), notice: "Verification approved."
     end
 
     def reject
@@ -123,4 +175,3 @@ module Admin
     end
   end
 end
-

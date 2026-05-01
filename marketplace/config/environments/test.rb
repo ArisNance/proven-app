@@ -8,6 +8,7 @@ Rails.application.configure do
   config.action_controller.perform_caching = false
   config.action_dispatch.show_exceptions = false
   config.allow_forgery_protection = false
+  config.active_storage.service = :test if config.respond_to?(:active_storage)
   config.active_job.queue_adapter = :test
   config.action_mailer.delivery_method = :test
 end

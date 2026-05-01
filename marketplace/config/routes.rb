@@ -55,6 +55,8 @@ Rails.application.routes.draw do
     resources :messages, only: %i[index show destroy]
     resources :maker_applications, only: %i[index show update] do
       member do
+        post :accept
+        post :complete_verification
         post :approve
         post :reject
       end
